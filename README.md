@@ -1,1 +1,3 @@
-# Software-Evolution
+# Sara & Edwin - Software Evolution
+Master Software Engineering @ UvA
+
