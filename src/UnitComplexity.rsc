@@ -5,6 +5,7 @@ import lang::java::m3::Core;
 import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
 import ParseTree;
+import util::Math;
 
 import List;
 import Exception;
@@ -12,6 +13,8 @@ import util::FileSystem;
 import lang::java::\syntax::Disambiguate;
 import lang::java::\syntax::Java15;
 import Type;
+
+import Volume;
 
 // Creates AST
 //24245
@@ -25,39 +28,28 @@ import Type;
 //int declarations = (0 | it + 1 | /Declaration _ := ast);
 
 public void main() {
-	M3 myModel = createM3FromEclipseProject(|project://smallsql0.21_src/src|);
-	set[loc] methods = methods(myModel);
-	
 	// Use this for unit size
+	//M3 myModel = createM3FromEclipseProject(|project://smallsql0.21_src/src|);
+	//set[loc] methods = methods(myModel);
 	//list[str] methodStr = [readFile(method) | method <- methods];
-
 	
+	real volume = 20000.; // Sub
+	// Inspired by: http://www.rascal-mpl.org/#_Metrics
 	set[MethodDec] allMethods(loc file) = {m | /MethodDec m := parse(#start[CompilationUnit], file)};
-	
-	lrel[int cc, loc method] maxCC(loc file) = [<cyclomaticComplexity(m), m@\loc> | m <- allMethods(file)];
+	lrel[int cc, int uLoc] mapCC(loc file) 
+		= [<cyclomaticComplexity(m), size(readFileLines(m@\loc))> | m <- allMethods(file)];
 	//list[int cc] maxCC(loc file) = [cyclomaticComplexity(m) | m <- allMethods(file)];
 	
-	ccRes = [*maxCC(f) | /file(f) <- crawl(|project://smallsql0.21_src/src|)];
+	ccRes = [*mapCC(f) | /file(f) <- crawl(|project://smallsql0.21_src/src|)];
 	
-	println(ccRes);
-	// This is not accurate, it should be expressed not in amount of units, but the percentage of code that these
-	// complex units take up.
-	//println(size([x | x <- ccRes, x >= 1 && x <= 10]));
-	//println(size([x | x <- ccRes, x >= 11 && x <= 20]));
-	//println(size([x | x <- ccRes, x >= 21 && x <= 50]));
-	//println(size([x | x <- ccRes, x > 50]));
-		
-	//list[int] ccList = [ cyclomaticComplexity(readFile(method)) | method <- methods];
+	// Average Unit size
+	println( toReal(sum([uloc | <cc, uloc> <- ccRes])) / toReal(size(ccRes)) );
 	
-	
-	//println(methodStr);
-	//println(ccList);
-	
-	//println([readFile(method) | method <- methods]);
-	
-	// myMethod.methodInvocation
-	// methodAST = [createAst[readFile(method) | method <- methods]FromEclipseFile(method, model=myModel) | method <- methods];
-	// methodAST = [readFile(method) | method <- methods]; // This is good for unit size
+	// CC per unit
+	println(sum([(toReal(uloc)/volume)*100. | <cc, uloc> <- ccRes, cc >= 1 && cc <= 10]));
+	println(sum([(toReal(uloc)/volume)*100. | <cc, uloc> <- ccRes, cc >= 11 && cc <= 20]));
+	println(sum([(toReal(uloc)/volume)*100. | <cc, uloc> <- ccRes, cc >= 21 && cc <= 50]));
+	println(sum([(toReal(uloc)/volume)*100. | <cc, uloc> <- ccRes, cc > 50]));
 }
 
 // Source: http://www.rascal-mpl.org/#_Metrics
