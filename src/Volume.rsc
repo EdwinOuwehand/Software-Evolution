@@ -11,6 +11,11 @@ import String;
  *	"hsqldb-2.3.1/hsqldb/src/org/hsqldb"
  *		
  */
+ 
+public int allLoc() {
+	return linesOfCode("smallsql0.21_src/src/smallsql/database") + linesOfCode("smallsql0.21_src/src/smallsql/database/language") + linesOfCode("smallsql0.21_src/src/smallsql/junit") + linesOfCode("smallsql0.21_src/src/smallsql/tools") ;
+} 
+ 
 public int linesOfCode(str directory) {
 	list [str] allLines 	= getAllLines(directory);
 	list [str] filteredLines = filterLines(allLines);
@@ -82,6 +87,10 @@ public list [str] filterMultilineComments(list [str] lines) {
  *	until the end of the commment is reached, up to or including the last line 
  */
 public list [str] dropBlockComment(list [str] lines) {
+	if(isEmpty(lines)) {
+		return [];
+	}
+
 	str line = trim(head(lines));
 	
 	// If */ followed by characters (code), return including this line.
