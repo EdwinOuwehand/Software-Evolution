@@ -1,14 +1,4 @@
-/** This appears
-to be 
-a comment
-*/sheep
-/** This appears
-to be 
-a comment
-*/
-
-code
-/** This appears
-to be 
-a comment
-*/
+/**
+ * hello
+ */
+private Money() {/*should be empty*/}
