@@ -7,35 +7,35 @@ import String;
 /**
  *  Returns number of lines of code from all the .java files in the given directory, 
  * 	given that the directory is a relative path to the root of an open Eclipse project
+ * 	"smallsql0.21_src/src/smallsql/database"
+ *	"hsqldb-2.3.1/hsqldb/src/org/hsqldb"
+ *		
  */
 public int linesOfCode(str directory) {
-	// Directory must be root folder of an Eclipse project
-	//str directory = "smallsql0.21_src/src/smallsql/database";
-	//str directory = "hsqldb-2.3.1/hsqldb/src/org/hsqldb"; 
-
 	list [str] allLines 	= getAllLines(directory);
+	list [str] filteredLines = filterLines(allLines);
 	
-	//println("\n-- Counting lines of code for .java files in <directory> ");
-	//println("Files total lines: <size(allLines)>");
-	
-	// Filter out all blank lines and one-line comments
-	list [str] filteredLines = [trim(x)  | x <- allLines, 
+	print(filteredLines);
+
+	return size(filteredLines);
+}
+
+public list [str] filterLines(list [str] lines) {
+	list [str] filteredLines = [trim(x)  | x <- lines, 
 											!isEmpty(trim(x)),	 		// Blank lines - lines with just tabs, spaces, newlines
 											/^\/\*+.*\*\/$/ !:= trim(x), // /*full line comment */
 											/^\/\// !:= trim(x)  		// Lines starting with // are completely commented out	
 							   ];
-							   	
 	filteredLines = filterMultilineComments(filteredLines);
 	
-	//println("Lines of code: <size(filteredLines)>");
-	//println("----------------------------------------------------------------------------");
-	
-	return size(filteredLines);
+	return filteredLines;
 }
 
 /**
  * 	Gets all lines of code from all the .java files in the given directory, 
  * 	given that the directory is a relative path to the root of an open Eclipse project
+ * 	
+ * 	First retrieves all filenames from directory, then overloads to recursive method 
  */
 public list [str] getAllLines(str directory) {
 	list [str] files 	= [x | x <- listEntries(|project://<directory>|), /\.java$/ := x];
@@ -53,9 +53,10 @@ public list [str] getAllLines(str directory, list [str] files, list [str] lines)
 	return getAllLines(directory, tail(files), lines + fileLines);
 }
 
-
+/**
+ *	Finds and removes multiline comments i.e. block comments and docs
+ */
 public list [str] filterMultilineComments(list [str] lines) {
-
 	list [str] filteredLines = [];
 	
 	// Repeat until all lines are counted
@@ -72,9 +73,14 @@ public list [str] filterMultilineComments(list [str] lines) {
 			lines = dropBlockComment(lines); 
 		}
 	}
+	
 	return filteredLines;
 }
 
+/**
+ *	Recursive method used by filterMultiLineComments to drop lines 
+ *	until the end of the commment is reached, up to or including the last line 
+ */
 public list [str] dropBlockComment(list [str] lines) {
 	str line = trim(head(lines));
 	
@@ -92,16 +98,3 @@ public list [str] dropBlockComment(list [str] lines) {
 	return dropBlockComment(tail(lines));
 }
 
-public test bool testSameLinesWhenManuallyStripped() {
-	str original = "Series-1/testfiles/original";
-	str filtered = "Series-1/testfiles/filtered";
-	
-	return linesOfCode(original) == linesOfCode(filtered);
-}
-
-public test bool testExpectedLOC() {
-	int expected = size(getAllLines("Series-1/testfiles/filtered"));
-	int linesOfCode = linesOfCode("Series-1/testfiles/filtered");
-	
-	return expected == linesOfCode;
-}
