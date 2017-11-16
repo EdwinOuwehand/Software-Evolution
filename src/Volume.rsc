@@ -9,7 +9,7 @@ import String;
  * 	given that the directory is a relative path to the root of an open Eclipse project
  * 	"smallsql0.21_src/src/smallsql/database"
  *	"hsqldb-2.3.1/hsqldb/src/org/hsqldb"
- *		
+ *	"Series-1/test/testfiles/reversedebug"
  */
  
 public int allLoc() {
@@ -17,22 +17,24 @@ public int allLoc() {
 } 
  
 public int linesOfCode(str directory) {
-	list [str] allLines 	= getAllLines(directory);
+	list [str] allLines 	= getAllLines(directory);	
 	list [str] filteredLines = filterLines(allLines);
-	
-	print(filteredLines);
 
 	return size(filteredLines);
 }
 
 public list [str] filterLines(list [str] lines) {
-	list [str] filteredLines = [trim(x)  | x <- lines, 
+	// Filter multiliners first, otherwise there's a chance of dropping the end of multiners when the line is // */ 
+	list [str] filteredLines = filterMultilineComments(lines);
+	//	println("\n\nlist mutlilines: <filteredLines>");
+	//
+
+	filteredLines = [trim(x)  | x <- filteredLines, 
 											!isEmpty(trim(x)),	 		// Blank lines - lines with just tabs, spaces, newlines
 											/^\/\*+.*\*\/$/ !:= trim(x), // /*full line comment */
 											/^\/\// !:= trim(x)  		// Lines starting with // are completely commented out	
 							   ];
-	filteredLines = filterMultilineComments(filteredLines);
-	
+	//println("\n\nfilter comprehension: <filteredLines>");
 	return filteredLines;
 }
 
@@ -68,18 +70,41 @@ public list [str] filterMultilineComments(list [str] lines) {
 	while(!isEmpty(lines)) {
 	
 		// As long as this is not an opening multiline block comment, move lines to the filteredLines list
-		while(!isEmpty(lines) && false == ((/^\/\*+.*$/ := lines[0]) && (/^\/\*+.*\*\/$/ !:= lines[0])) ) {
-			filteredLines = push(lines[0], filteredLines);
+		while(!isEmpty(lines) && false == ((/^.*\/\*+.*.*$/ := trim(lines[0])) && (/^.*\/\*+.*\*\/.*$/ !:= trim(lines[0]))) ) {
+			filteredLines = filteredLines + trim(lines[0]);
 			lines = drop(1, lines);
 		}
-		
-		// When we can no longer do this, check: Is this the start of a multiline block comment? If so, drop lines until the end of the comment is found
-		if (!isEmpty(lines) && (/^\/\*+.*$/ := lines[0]) && (/^\/\*+.*\*\/$/ !:= lines[0])) {
-			lines = dropBlockComment(lines); 
+
+		if(!isEmpty(lines)) {
+			// When we can't continue, check: 
+			// Is this false alarm, is it just an occurrence of /* inside a string? If so, remove it and re-evaluate
+			if(insideString(trim(lines[0]))){
+				filterString = replaceFirst(lines[0], "/*", "");
+				lines = drop(1, lines);
+				lines = push(filterString, lines);
+			} 
+	
+			// Is this really start of a multiline block comment? If so, drop lines until the end of the comment is found
+			else if (!isEmpty(lines) && (/^.*\/\*+.*$/ := trim(lines[0])) && (/^.*\/\*+.*\*\/.*$/ !:= trim(lines[0]))) {
+				lines = dropBlockComment(lines); 
+			}
 		}
 	}
 	
 	return filteredLines;
+}
+
+public bool insideString (str line) {
+	if(!isEmpty(line)){
+		int endStr = findFirst(line, "/*");
+		line = line[..endStr];		
+	}
+	
+	// If there's an open string (noticable by odd number of ") before this /*
+	if(size(findAll(line, "\"")) % 2 == 1) {
+		return true;
+	}
+	return false;
 }
 
 /**
@@ -91,15 +116,23 @@ public list [str] dropBlockComment(list [str] lines) {
 		return [];
 	}
 
+//println("dropping block comment");
+
 	str line = trim(head(lines));
 	
 	// If */ followed by characters (code), return including this line.
-	if (/^\*\/.+/ := line) {
-	 	return lines;
+	if (/^.*\*\/.+/ := line) {
+	
+	//check if immediately re-opening -> keep dropping
+		if (/^.*\*\/\*/ := line) {
+			dropBlockComment(tail(lines));
+		} else {
+			return lines;
+		}
 	}
 	
 	// If */ is the end of the line, return without this line.
-	if (/^\*\// := line) {
+	if (/^.*\*\// := line) {
 		return tail(lines);
 	}
 	
