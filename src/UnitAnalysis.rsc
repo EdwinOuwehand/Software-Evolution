@@ -16,35 +16,31 @@ import Type;
 
 import Volume;
 
-// Creates AST
-//24245
-
-//ast = createAstsFromEclipseProject(|project://smallsql0.21_src|, true);
-//int statments = (0 | it + 1 | /Statement _ := ast);
-//int declarations = (0 | it + 1 | /Declaration _ := ast);
-
 public void execute() {
-	// Use this for unit size
-	//M3 myModel = createM3FromEclipseProject(|project://smallsql0.21_src/src|);
-	//set[loc] methods = methods(myModel);
-	//list[str] methodStr = [readFile(method) | method <- methods];
-	
-	real volume = 24040.; // Stub
+	real volume = 24040.; // Stub ? 24245
 	
 	// Inspired by: http://www.rascal-mpl.org/#_Metrics
 	set[MethodDec] allMethods(loc file) = {m | /MethodDec m := parse(#start[CompilationUnit], file)};
 	lrel[int cc, int uLoc] mapCC(loc file) 
 		= [<cyclomaticComplexity(m), size(filterLines(readFileLines(m@\loc)))> | m <- allMethods(file)];
-	//list[int cc] maxCC(loc file) = [cyclomaticComplexity(m) | m <- allMethods(file)];
 	
-	ccRes = [*mapCC(f) | /file(f) <- crawl(|project://smallsql0.21_src/src|)];
+	list[tuple[int, int]] ccRes = [*mapCC(f) | /file(f) <- crawl(|project://smallsql0.21_src/src|)];
 	
-	// Average Unit size
-	//println( toReal(sum([uloc | <cc, uloc> <- ccRes])) / toReal(size(ccRes)) );
-	
-	printUnitSize(ccRes, volume);
 	println("-----------------");
-	printCCperUnit(ccRes, volume);	
+	println("Unit size (Low to High)");
+	println("-----------------");
+	printUnitSize(ccRes, volume);
+	
+	println("-----------------");
+	println("CC per Unit (Low to High)");
+	println("-----------------");
+	printCCperUnit(ccRes, volume);
+	
+	println("");
+}
+
+public void averageUnitSize(list[tuple[int, int]] ccRes, real volume){
+	println( toReal(sum([uloc | <cc, uloc> <- ccRes])) / toReal(size(ccRes)) );
 }
 
 public void printUnitSize(list[tuple[int, int]] ccRes, real volume) {
@@ -60,7 +56,6 @@ public void printCCperUnit(list[tuple[int, int]] ccRes, real volume) {
 	println( round( sum([(toReal(uloc)/volume)*100. | <cc, uloc> <- ccRes, cc >= 21 && cc <= 50]), 0.1 ));
 	println( round( sum([(toReal(uloc)/volume)*100. | <cc, uloc> <- ccRes, cc > 50]), 0.1 ));
 }
-
 
 // Source: http://www.rascal-mpl.org/#_Metrics
 public int cyclomaticComplexity(MethodDec m) {
