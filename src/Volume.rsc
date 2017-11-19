@@ -5,48 +5,59 @@ import List;
 import String;
 
 /**
- *  Returns number of lines of code from all the .java files in the given directory, 
- * 	given that the directory is a relative path to the root of an open Eclipse project
- * 	"smallsql0.21_src/src/smallsql/database"
- *	"hsqldb-2.3.1/hsqldb/src/org/hsqldb"
- *	"Series-1/test/testfiles/reversedebug"
+ *  Returns number of lines of code from all the .java files in the given directory and nested directories, 
+ * 	given that the directory is a relative path to the root of an open Eclipse project, such as:
+ * 		"smallsql0.21_src"
+ *		"hsqldb-2.3.1/hsqldb/src"
+ *		"Series-1/test/testfiles/"
  */
- 
-public int allLoc() {
-	return linesOfCode("smallsql0.21_src/src/smallsql/database") + linesOfCode("smallsql0.21_src/src/smallsql/database/language") + linesOfCode("smallsql0.21_src/src/smallsql/junit") + linesOfCode("smallsql0.21_src/src/smallsql/tools") ;
-} 
- 
 public int linesOfCode(str directory) {
 	list [str] allLines 	= getAllLines(directory);	
 	list [str] filteredLines = filterLines(allLines);
 
 	return size(filteredLines);
 }
-
+/**
+ *	Filters out all multiline comments, single line comments and blank lines from a given list of strings
+ */
 public list [str] filterLines(list [str] lines) {
-	// Filter multiliners first, otherwise there's a chance of dropping the end of multiners when the line is // */ 
-	list [str] filteredLines = filterMultilineComments(lines);
-	//	println("\n\nlist mutlilines: <filteredLines>");
-	//
 
-	filteredLines = [trim(x)  | x <- filteredLines, 
-											!isEmpty(trim(x)),	 		// Blank lines - lines with just tabs, spaces, newlines
-											/^\/\*+.*\*\/$/ !:= trim(x), // /*full line comment */
-											/^\/\// !:= trim(x)  		// Lines starting with // are completely commented out	
-							   ];
-	//println("\n\nfilter comprehension: <filteredLines>");
+	// Filter multiline comments first, this order prevents the end of multiline comments to be deleted when: // */ 
+	list [str] filteredLines = filterMultilineComments(lines);
+
+	filteredLines = [trim(x) | x <- filteredLines, 
+									!isEmpty(trim(x)),	 					 
+									!isEntirelyBlockComment(x), 
+									/^\/\// !:= trim(x)  					 // Lines starting with // are completely commented out	
+	];
+					      		    //println("\n\nfilter : <filteredLines>");  // For debugging
 	return filteredLines;
 }
 
+public bool isEntirelyBlockComment (str line) {
+	return (/^\/\*+.*\*\/$/ := trim(line));
+}
+
+
 /**
- * 	Gets all lines of code from all the .java files in the given directory, 
+ * 	Gets all lines of code from all the .java files in the given directory and nested directories, 
  * 	given that the directory is a relative path to the root of an open Eclipse project
  * 	
- * 	First retrieves all filenames from directory, then overloads to recursive method 
+ * 	First step is checking for nested directories and recursively going in there first, retrieving their lines.
+ * 	Then retrieve all filenames from the directory, then overloads to recursive method to get lines for each file
  */
 public list [str] getAllLines(str directory) {
-	list [str] files 	= [x | x <- listEntries(|project://<directory>|), /\.java$/ := x];
-	return getAllLines(directory, files, []);
+	list [str] lines = [];
+	list [str] directories = [x | x <- listEntries(|project://<directory>|), isDirectory(|project://<directory>/<x>|)];
+	
+	while(!isEmpty(directories)) {
+		lines = lines + getAllLines("<directory>/<head(directories)>");
+		directories = drop(1, directories);
+	}
+	
+	list [str] files = [x | x <- listEntries(|project://<directory>|), /\.java$/ := x];
+	
+	return lines + getAllLines(directory, files, []);
 }
 
 public list [str] getAllLines(str directory, list [str] files, list [str] lines) {

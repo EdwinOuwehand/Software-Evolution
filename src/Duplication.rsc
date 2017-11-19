@@ -20,58 +20,57 @@ public int duplicatedLines(str directory) {
 	int end = (size(lines)-1);
 	
 	println(lines);
+	
 	while(index <= end-6) {
-		println("index <index>, end <end>");
-		int dupCount = 0;
-		
 		if(index+6 >= end) { break; }
+
+		println("index <index>, end <end>");
+		println("Looking for clone starting at <index+6>");
+		
+		int dupCount = 0;	
 		
 		// Look for the start of a clone, start at 6 places further
-		for(int i <- [index+6 .. end]) {
+		for(int startClone <- [index+6 .. end]) {
+		println("comparing <index>: <lines[index]> == <startClone>: <lines[startClone]>)");
 	
-		println("i: <i>");
-			// Found matching line
-			if (lines[index] == lines[i]) {
-				println("MATCH: <lines[index]> and <lines[i]>");
+			// Found matching line (start of clone)
+			if (lines[index] == lines[startClone]) {
+				println("MATCH! Find rest of the clone:");
 				dupCount += 1;
 				index += 1;
 				
 				// Search for immediately following matches
-				for(int j <- [i+1 .. end+1]) {
-					println("Checking follow-up match: <lines[index]> and <lines[j]>");
-					// More matches found
-					if(lines[index] == lines[j]) {
-						println("Thats another match at <j>");
+				for(int inClone <- [startClone+1 .. end+1]) {
+					//println("comparing [<index>] <lines[index]> == [<inClone>] <lines[inClone]>");
+				
+					// Following match found
+					if(lines[index] == lines[inClone]) {
+						println("MATCH <lines[index]> == <lines[inClone]>");
+
 						dupCount += 1;
 						index += 1;
 					
 					// End of clone found, stop searching for following matches
 					} else { 
-						println("End of the clone");
-						index += 1;					
+						println("CONFLICT <lines[index]> != <lines[inClone]>");
 						break;
 					}
-				}
-			} // End-if found match
-			else { // No match on this line? search on next line for a match.
-				println("no match here (<lines[i]>, try next line");
+				}// End-if found matching start of clone
 			}
 			
 			// If clone of at least 6 lines was found count it
 			if (dupCount >= 6) {
 				cloneLines += dupCount;
-				break;
-			}
-				 
+				dupCount = 0;
+			}				 
 		} 
-		// End for that looks for start of a clone, start analysing next line
+		// End for-loop that looks for start of a clone (checks one line), start analysing next line
 		index += 1;
-		
 	}
 	
+	// Result
 	println("<cloneLines> of <n> lines are duplicated code.");
 	return cloneLines;
-
 }
 
 
