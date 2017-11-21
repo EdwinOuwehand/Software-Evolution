@@ -16,9 +16,7 @@ import Type;
 
 import Volume;
 
-public list [num] unitComplexity (loc project, str src list[real] scale = [0., 10., 20., 50., 1000000.]) {
-	real volume = toReal(linesOfCode(project));
-
+public list [num] unitComplexity (loc project, str src, real volume, list[real] scale = [0., 10., 20., 50., 1000000.]) {
 	lrel[int cc, int uLoc] mapCC(loc file) 
 		= [<cyclomaticComplexity(m), size(filterLines(readFileLines(m@\loc)))> | m <- allMethods(file)];
 	
@@ -29,9 +27,7 @@ public list [num] unitComplexity (loc project, str src list[real] scale = [0., 1
 	}
 }
 
-public list [num] unitSize (loc project, str src, list[real] scale = [0., 20., 40., 60., 100000.]) {
-	real volume = toReal(linesOfCode(project));
-	
+public list [num] unitSize (loc project, str src, real volume, list[real] scale = [0., 20., 40., 60., 100000.]) {
 	list[int] mapCC(loc file) = [size(filterLines(readFileLines(m@\loc))) | m <- allMethods(file)];
 	list[int] ccRes = [*mapCC(f) | /file(f) <- crawl(project + src)];
 	
