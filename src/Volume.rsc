@@ -3,6 +3,7 @@ module Volume
 import IO;
 import List;
 import String;
+import DateTime;
 
 /**
  *  Returns number of lines of code from all the .java files in the given directory and nested directories, 
@@ -11,10 +12,12 @@ import String;
  *		|project://hsqldb-2.3.1/hsqldb|
  */
 public int linesOfCode(loc directory) {
+	println("Start LOC at <now()>");
 	list [str] allLines 	= getAllLines(directory);	
 	list [str] filteredLines = filterLines(allLines);
+	println("Done at <now()>");
 
-	return size(filteredLines);
+	return size(filteredLines);	
 }
 
 /**
