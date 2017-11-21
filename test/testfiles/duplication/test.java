@@ -2,36 +2,21 @@ a
 b
 c
 d
-e
-f
-//
-X
-X
-a
+x
 b
-X
-X
-//
+c
+d
+x
 a
 b
 c
 d
-e
-f
-//expect 6
+x
+a
+b
+c
+x
 a
 b
 c
 d
-e
-f
-// expect 12
-a
-b
-c
-d
-a
-b
-a
-b
-// expect 16

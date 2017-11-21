@@ -3,6 +3,7 @@ module Volume
 import IO;
 import List;
 import String;
+import DateTime;
 
 /**
  *  Returns number of lines of code from all the .java files in the given directory and nested directories, 
@@ -12,10 +13,15 @@ import String;
  *		"Series-1/test/testfiles/"
  */
 public int linesOfCode(str directory) {
+	println("Measuring LOC... <now()>");
+
+
 	list [str] allLines 	= getAllLines(directory);	
 	list [str] filteredLines = filterLines(allLines);
+	println("Done at <now()>");
 
 	return size(filteredLines);
+	
 }
 /**
  *	Filters out all multiline comments, single line comments and blank lines from a given list of strings
