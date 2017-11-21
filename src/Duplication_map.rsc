@@ -12,11 +12,12 @@ import Boolean;
 
 
 // Series-1/test/testfiles/duplication
+// |project://smallsql0.21_src|
 
 public int duplicatedLines(str directory) {
 	println("Measuring duplication... <now()>");
 	
-	list [str] rawLines 	= getAllLines(directory);
+	list [str] rawLines 	= getAllLines(|project://smallsql0.21_src|);
 	list [str] lines 	= filterLines(rawLines);
 	
 	int n 			= size(lines);

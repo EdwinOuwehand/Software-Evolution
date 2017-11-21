@@ -8,21 +8,18 @@ import DateTime;
 /**
  *  Returns number of lines of code from all the .java files in the given directory and nested directories, 
  * 	given that the directory is a relative path to the root of an open Eclipse project, such as:
- * 		"smallsql0.21_src"
- *		"hsqldb-2.3.1/hsqldb/src"
- *		"Series-1/test/testfiles/"
+ * 		|project://smallsql0.21_src|
+ *		|project://hsqldb-2.3.1/hsqldb|
  */
-public int linesOfCode(str directory) {
-	println("Measuring LOC... <now()>");
-
-
+public int linesOfCode(loc directory) {
+	println("Start LOC at <now()>");
 	list [str] allLines 	= getAllLines(directory);	
 	list [str] filteredLines = filterLines(allLines);
 	println("Done at <now()>");
 
-	return size(filteredLines);
-	
+	return size(filteredLines);	
 }
+
 /**
  *	Filters out all multiline comments, single line comments and blank lines from a given list of strings
  */
@@ -31,19 +28,15 @@ public list [str] filterLines(list [str] lines) {
 	// Filter multiline comments first, this order prevents the end of multiline comments to be deleted when: // */ 
 	list [str] filteredLines = filterMultilineComments(lines);
 
-	filteredLines = [trim(x) | x <- filteredLines, 
-									!isEmpty(trim(x)),	 					 
-									!isEntirelyBlockComment(x), 
-									/^\/\// !:= trim(x)  					 // Lines starting with // are completely commented out	
-	];
-					      		    //println("\n\nfilter : <filteredLines>");  // For debugging
-	return filteredLines;
+	return [ trim(x) | x <- filteredLines, 
+								!isEmpty(trim(x)),	 					 
+								!isEntirelyBlockComment(x), 
+								/^\/\// !:= trim(x) ];  // Lines starting with // are completely commented out
 }
 
 public bool isEntirelyBlockComment (str line) {
 	return (/^\/\*+.*\*\/$/ := trim(line));
 }
-
 
 /**
  * 	Gets all lines of code from all the .java files in the given directory and nested directories, 
@@ -52,28 +45,28 @@ public bool isEntirelyBlockComment (str line) {
  * 	First step is checking for nested directories and recursively going in there first, retrieving their lines.
  * 	Then retrieve all filenames from the directory, then overloads to recursive method to get lines for each file
  */
-public list [str] getAllLines(str directory) {
+public list [str] getAllLines(loc directory) {
 	list [str] lines = [];
-	list [str] directories = [x | x <- listEntries(|project://<directory>|), isDirectory(|project://<directory>/<x>|)];
+	list [str] directories = [x | x <- listEntries(directory), isDirectory(directory + x)];
 	
 	while(!isEmpty(directories)) {
-		lines = lines + getAllLines("<directory>/<head(directories)>");
+		lines = lines + getAllLines(directory + head(directories));
 		directories = drop(1, directories);
 	}
 	
-	list [str] files = [x | x <- listEntries(|project://<directory>|), /\.java$/ := x];
-	
+	list [str] files = [x | x <- listEntries(directory), /\.java$/ := x];
 	return lines + getAllLines(directory, files, []);
 }
 
-public list [str] getAllLines(str directory, list [str] files, list [str] lines) {
+/**
+  * Helper function for getAllLines.
+  */
+public list [str] getAllLines(loc directory, list [str] files, list [str] lines) {
 	if (isEmpty(files)) {
 		return lines;
 	}
 	
-	str file = head(files); 
-	list [str] fileLines = readFileLines(|project://<directory>/<file>|);
-	
+	list [str] fileLines = readFileLines(directory + head(files));
 	return getAllLines(directory, tail(files), lines + fileLines);
 }
 
@@ -132,8 +125,6 @@ public list [str] dropBlockComment(list [str] lines) {
 	if(isEmpty(lines)) {
 		return [];
 	}
-
-//println("dropping block comment");
 
 	str line = trim(head(lines));
 	
