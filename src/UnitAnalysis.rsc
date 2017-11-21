@@ -16,24 +16,47 @@ import Type;
 
 import Volume;
 
-public list [num] unitComplexity (loc project, str src, real volume, list[real] scale = [0., 10., 20., 50., 1000000.]) {
+private list[int] ccScale 	= [50, 20, 10, 0];
+private list[int] sizeScale = [60, 40, 20, 0];
+
+//private list[tuple[int, int]] analysedList;
+//
+//public void analyseProject() {
+//	
+//}
+
+public list [int] unitComplexity (loc project, str src, int volume) {
 	lrel[int cc, int uLoc] mapCC(loc file) 
 		= [<cyclomaticComplexity(m), size(filterLines(readFileLines(m@\loc)))> | m <- allMethods(file)];
 	
 	list[tuple[int, int]] ccRes = [*mapCC(f) | /file(f) <- crawl(project + src)];
 	
-	return for (int i <- [0..4]) { 
-		append round( sum([0r] + [(toReal(uloc)/volume)*100. | <cc, uloc> <- ccRes, cc >= (scale[i]+1.) && cc <= scale[i+1]]), 0.1 );
+	list [int] result = [0,0,0,0];
+	for (<cc, uloc> <- ccRes) {
+		for(i <- index(ccScale)) {
+			if(cc > ccScale[i]){
+				result[i] += uloc;
+				break;
+			}
+		}
 	}
+	return reverse([percent(uloc, volume) | uloc <- result]);
 }
 
-public list [num] unitSize (loc project, str src, real volume, list[real] scale = [0., 20., 40., 60., 100000.]) {
+public list [int] unitSize (loc project, str src, int volume) {
 	list[int] mapCC(loc file) = [size(filterLines(readFileLines(m@\loc))) | m <- allMethods(file)];
 	list[int] ccRes = [*mapCC(f) | /file(f) <- crawl(project + src)];
 	
-	return for (int i <- [0..4]) { 
-		append round( sum([0r] + [(toReal(uloc)/volume)*100. | uloc <- ccRes, uloc >= (scale[i]+1.) && uloc <= scale[i+1]]), 0.1 );
+	list [int] result = [0,0,0,0];
+	for (uloc <- ccRes) {
+		for(i <- index(sizeScale)) {
+			if(uloc > sizeScale[i]){
+				result[i] += uloc;
+				break;
+			}
+		}
 	}
+	return reverse([percent(uloc, volume) | uloc <- result]);
 }
 
 // Source: http://www.rascal-mpl.org/#_Metrics
