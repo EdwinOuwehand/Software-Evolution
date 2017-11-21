@@ -23,10 +23,7 @@ public int duplicatedLines(str directory) {
 	int n 			= size(lines);
 	int cloneLines 	= 0;
 	int index 		= 0; //index for keeping track of line number, as we're dropping heads when making blocks
-	//int end 			= n; //not -1 because these for loops dont include the given end number
-	//int dupCount 	= 0;		
-	
-	int threshold 	= 3;
+	int threshold 	= 6;
 	
 	map[list[str], set[list[int]]] 	inverted 	= getInvertedBlocks(lines, threshold);
 	map[list[str], set[list[int]]] duplicates 	= (block : inverted[block] | block <- inverted, size(inverted[block]) > 1);
