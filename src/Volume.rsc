@@ -7,9 +7,8 @@ import String;
 /**
  *  Returns number of lines of code from all the .java files in the given directory and nested directories, 
  * 	given that the directory is a relative path to the root of an open Eclipse project, such as:
- * 		"smallsql0.21_src"
- *		"hsqldb-2.3.1/hsqldb/src"
- *		"Series-1/test/testfiles/"
+ * 		|project://smallsql0.21_src|
+ *		|project://hsqldb-2.3.1/hsqldb|
  */
 public int linesOfCode(loc directory) {
 	list [str] allLines 	= getAllLines(directory);	
@@ -17,6 +16,7 @@ public int linesOfCode(loc directory) {
 
 	return size(filteredLines);
 }
+
 /**
  *	Filters out all multiline comments, single line comments and blank lines from a given list of strings
  */
@@ -25,19 +25,15 @@ public list [str] filterLines(list [str] lines) {
 	// Filter multiline comments first, this order prevents the end of multiline comments to be deleted when: // */ 
 	list [str] filteredLines = filterMultilineComments(lines);
 
-	filteredLines = [trim(x) | x <- filteredLines, 
-									!isEmpty(trim(x)),	 					 
-									!isEntirelyBlockComment(x), 
-									/^\/\// !:= trim(x)  					 // Lines starting with // are completely commented out	
-	];
-					      		    //println("\n\nfilter : <filteredLines>");  // For debugging
-	return filteredLines;
+	return [ trim(x) | x <- filteredLines, 
+								!isEmpty(trim(x)),	 					 
+								!isEntirelyBlockComment(x), 
+								/^\/\// !:= trim(x) ];  // Lines starting with // are completely commented out
 }
 
 public bool isEntirelyBlockComment (str line) {
 	return (/^\/\*+.*\*\/$/ := trim(line));
 }
-
 
 /**
  * 	Gets all lines of code from all the .java files in the given directory and nested directories, 
@@ -56,17 +52,18 @@ public list [str] getAllLines(loc directory) {
 	}
 	
 	list [str] files = [x | x <- listEntries(directory), /\.java$/ := x];
-	
 	return lines + getAllLines(directory, files, []);
 }
 
+/**
+  * Helper function for getAllLines.
+  */
 public list [str] getAllLines(loc directory, list [str] files, list [str] lines) {
 	if (isEmpty(files)) {
 		return lines;
 	}
 	
 	list [str] fileLines = readFileLines(directory + head(files));
-	
 	return getAllLines(directory, tail(files), lines + fileLines);
 }
 
@@ -125,8 +122,6 @@ public list [str] dropBlockComment(list [str] lines) {
 	if(isEmpty(lines)) {
 		return [];
 	}
-
-//println("dropping block comment");
 
 	str line = trim(head(lines));
 	
