@@ -11,35 +11,32 @@ public test bool unitCC() {
 }
 
 public test bool testSameLinesWhenManuallyStripped() {
-	str original = "Software-Evolution/test/testfiles/original";
-	str filtered = "Software-Evolution/test/testfiles/filtered";
+	loc original = |project://Software-Evolution/test/benchmarkFiles/original|;
+	loc filtered = |project://Software-Evolution/test/benchmarkFiles/filtered|;
 	
 	return linesOfCode(original) == linesOfCode(filtered);
 }
 
 public test bool testExpectedLOC() {
-	int expected = size(getAllLines("Software-Evolution/test/testfiles/filtered"));
-	int linesOfCode = linesOfCode("Software-Evolution/test/testfiles/filtered");
+	int expected = size(getAllLines(|project://Software-Evolution/test/benchmarkFiles/filtered|));
+	int linesOfCode = linesOfCode(|project://Software-Evolution/test/benchmarkFiles/filtered|);
 	
 	return expected == linesOfCode;
 }
 
 public test bool testTokenizerFileExpectedLOC() {
-	int expected = size(getAllLines("Software-Evolution/test/testfiles/debugtokenizer/filtered"));
-	int linesOfCode = linesOfCode("Software-Evolution/test/testfiles/debugtokenizer/original");
+	int expected = size(getAllLines(|project://Software-Evolution/test/benchmarkFiles/filtered|));
+	int linesOfCode = linesOfCode(|project://Software-Evolution/test/benchmarkFiles/original|);
 	
-	println("<expected> == <linesOfCode> ?");
 	return expected == linesOfCode;
 }
 
 public test bool testTokenizerFileSameLinesWhenManuallyStripped() {
-	str original = "Software-Evolution/test/testfiles/debugtokenizer/original";
-	str filtered = "Software-Evolution/test/testfiles/debugtokenizer/filtered";
+	loc original = |project://Software-Evolution/test/benchmarkFiles/original|;
+	loc filtered = |project://Software-Evolution/test/benchmarkFiles/filtered|;
 	
 	int orig = linesOfCode(original);
 	int filt = linesOfCode(filtered);
-	
-	println("<orig> == <filt> ?");
 
 	return orig == filt;
 }
