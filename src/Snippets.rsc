@@ -17,7 +17,7 @@ import Type;
 public void methodsBasedOnM3() {
 	M3 myModel = createM3FromEclipseProject(|project://smallsql0.21_src/src|);
 	set[loc] methods = methods(myModel);
-	list[str] methodStr = [readFile(method) | method <- methods];
+	list[str] methodStr = [readFile(method) | method <- methods]; // Still works, ha!
 }
 
 public void totalDeclsAndStmts() {

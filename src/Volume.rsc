@@ -11,7 +11,7 @@ import String;
  *		"hsqldb-2.3.1/hsqldb/src"
  *		"Series-1/test/testfiles/"
  */
-public int linesOfCode(str directory) {
+public int linesOfCode(loc directory) {
 	list [str] allLines 	= getAllLines(directory);	
 	list [str] filteredLines = filterLines(allLines);
 
@@ -46,27 +46,26 @@ public bool isEntirelyBlockComment (str line) {
  * 	First step is checking for nested directories and recursively going in there first, retrieving their lines.
  * 	Then retrieve all filenames from the directory, then overloads to recursive method to get lines for each file
  */
-public list [str] getAllLines(str directory) {
+public list [str] getAllLines(loc directory) {
 	list [str] lines = [];
-	list [str] directories = [x | x <- listEntries(|project://<directory>|), isDirectory(|project://<directory>/<x>|)];
+	list [str] directories = [x | x <- listEntries(directory), isDirectory(directory + x)];
 	
 	while(!isEmpty(directories)) {
-		lines = lines + getAllLines("<directory>/<head(directories)>");
+		lines = lines + getAllLines(directory + head(directories));
 		directories = drop(1, directories);
 	}
 	
-	list [str] files = [x | x <- listEntries(|project://<directory>|), /\.java$/ := x];
+	list [str] files = [x | x <- listEntries(directory), /\.java$/ := x];
 	
 	return lines + getAllLines(directory, files, []);
 }
 
-public list [str] getAllLines(str directory, list [str] files, list [str] lines) {
+public list [str] getAllLines(loc directory, list [str] files, list [str] lines) {
 	if (isEmpty(files)) {
 		return lines;
 	}
 	
-	str file = head(files); 
-	list [str] fileLines = readFileLines(|project://<directory>/<file>|);
+	list [str] fileLines = readFileLines(directory + head(files));
 	
 	return getAllLines(directory, tail(files), lines + fileLines);
 }

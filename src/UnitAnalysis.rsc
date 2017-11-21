@@ -17,7 +17,7 @@ import Type;
 import Volume;
 
 public void execute() {
-	real volume = 24040.; // Stub ? 24245
+	real volume = toReal(linesOfCode("smallsql0.21_src/src"));
 	
 	// Inspired by: http://www.rascal-mpl.org/#_Metrics
 	set[MethodDec] allMethods(loc file) = {m | /MethodDec m := parse(#start[CompilationUnit], file)};
@@ -44,10 +44,10 @@ public void averageUnitSize(list[tuple[int, int]] ccRes, real volume){
 }
 
 public void printUnitSize(list[tuple[int, int]] ccRes, real volume) {
-	println( round( sum([(toReal(uloc)/volume)*100. | <cc, uloc> <- ccRes, uloc >= 0 && uloc <= 10]), 0.1 ));
-	println( round( sum([(toReal(uloc)/volume)*100. | <cc, uloc> <- ccRes, uloc >= 11 && uloc <= 30]), 0.1 ));
-	println( round( sum([(toReal(uloc)/volume)*100. | <cc, uloc> <- ccRes, uloc >= 31 && uloc <= 50]), 0.1 ));
-	println( round( sum([(toReal(uloc)/volume)*100. | <cc, uloc> <- ccRes, uloc > 50]), 0.1 ));
+	println( round( sum([(toReal(uloc)/volume)*100. | <cc, uloc> <- ccRes, uloc >= 0 && uloc <= 20]), 0.1 ));
+	println( round( sum([(toReal(uloc)/volume)*100. | <cc, uloc> <- ccRes, uloc >= 21 && uloc <= 40]), 0.1 ));
+	println( round( sum([(toReal(uloc)/volume)*100. | <cc, uloc> <- ccRes, uloc >= 41 && uloc <= 60]), 0.1 ));
+	println( round( sum([(toReal(uloc)/volume)*100. | <cc, uloc> <- ccRes, uloc > 60]), 0.1 ));
 }
 
 public void printCCperUnit(list[tuple[int, int]] ccRes, real volume) {
