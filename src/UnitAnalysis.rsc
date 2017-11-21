@@ -16,46 +16,32 @@ import Type;
 
 import Volume;
 
-public void execute() {
-	real volume = toReal(linesOfCode("smallsql0.21_src/src"));
-	
-	// Inspired by: http://www.rascal-mpl.org/#_Metrics
-	set[MethodDec] allMethods(loc file) = {m | /MethodDec m := parse(#start[CompilationUnit], file)};
+public list [num] unitComplexity (loc project, str src list[real] scale = [0., 10., 20., 50., 1000000.]) {
+	real volume = toReal(linesOfCode(project));
+
 	lrel[int cc, int uLoc] mapCC(loc file) 
 		= [<cyclomaticComplexity(m), size(filterLines(readFileLines(m@\loc)))> | m <- allMethods(file)];
 	
-	list[tuple[int, int]] ccRes = [*mapCC(f) | /file(f) <- crawl(|project://smallsql0.21_src/src|)];
+	list[tuple[int, int]] ccRes = [*mapCC(f) | /file(f) <- crawl(project + src)];
 	
-	println("-----------------");
-	println("Unit size (Low to High)");
-	println("-----------------");
-	printUnitSize(ccRes, volume);
-	
-	println("-----------------");
-	println("CC per Unit (Low to High)");
-	println("-----------------");
-	printCCperUnit(ccRes, volume);
-	
-	println("");
+	return for (int i <- [0..4]) { 
+		append round( sum([0r] + [(toReal(uloc)/volume)*100. | <cc, uloc> <- ccRes, cc >= (scale[i]+1.) && cc <= scale[i+1]]), 0.1 );
+	}
 }
 
-public void averageUnitSize(list[tuple[int, int]] ccRes, real volume){
-	println( toReal(sum([uloc | <cc, uloc> <- ccRes])) / toReal(size(ccRes)) );
+public list [num] unitSize (loc project, str src, list[real] scale = [0., 20., 40., 60., 100000.]) {
+	real volume = toReal(linesOfCode(project));
+	
+	list[int] mapCC(loc file) = [size(filterLines(readFileLines(m@\loc))) | m <- allMethods(file)];
+	list[int] ccRes = [*mapCC(f) | /file(f) <- crawl(project + src)];
+	
+	return for (int i <- [0..4]) { 
+		append round( sum([0r] + [(toReal(uloc)/volume)*100. | uloc <- ccRes, uloc >= (scale[i]+1.) && uloc <= scale[i+1]]), 0.1 );
+	}
 }
 
-public void printUnitSize(list[tuple[int, int]] ccRes, real volume) {
-	println( round( sum([(toReal(uloc)/volume)*100. | <cc, uloc> <- ccRes, uloc >= 0 && uloc <= 20]), 0.1 ));
-	println( round( sum([(toReal(uloc)/volume)*100. | <cc, uloc> <- ccRes, uloc >= 21 && uloc <= 40]), 0.1 ));
-	println( round( sum([(toReal(uloc)/volume)*100. | <cc, uloc> <- ccRes, uloc >= 41 && uloc <= 60]), 0.1 ));
-	println( round( sum([(toReal(uloc)/volume)*100. | <cc, uloc> <- ccRes, uloc > 60]), 0.1 ));
-}
-
-public void printCCperUnit(list[tuple[int, int]] ccRes, real volume) {
-	println( round( sum([(toReal(uloc)/volume)*100. | <cc, uloc> <- ccRes, cc >= 1 && cc <= 10]), 0.1 ));
-	println( round( sum([(toReal(uloc)/volume)*100. | <cc, uloc> <- ccRes, cc >= 11 && cc <= 20]), 0.1 ));
-	println( round( sum([(toReal(uloc)/volume)*100. | <cc, uloc> <- ccRes, cc >= 21 && cc <= 50]), 0.1 ));
-	println( round( sum([(toReal(uloc)/volume)*100. | <cc, uloc> <- ccRes, cc > 50]), 0.1 ));
-}
+// Source: http://www.rascal-mpl.org/#_Metrics
+public set[MethodDec] allMethods(loc file) = {m | /MethodDec m := parse(#start[CompilationUnit], file)};
 
 // Source: http://www.rascal-mpl.org/#_Metrics
 public int cyclomaticComplexity(MethodDec m) {

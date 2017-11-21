@@ -30,6 +30,10 @@ public void totalDeclsAndStmts() {
 	println(statements(ast));
 }
 
+public void averageUnitSize(list[tuple[int, int]] ccRes, real volume){
+	println( toReal(sum([uloc | <cc, uloc> <- ccRes])) / toReal(size(ccRes)) );
+}
+
 public int declarations(set[Declaration] ast) {
 	return (0 | it + 1 | /Declaration _ := ast);
 }
