@@ -24,8 +24,10 @@ public void main () {
 	loc project = |project://smallsql0.21_src|;
 	//project = |project://Software-Evolution/test/benchmarkFiles/filtered|;
 	int volume = linesOfCode(project);
-	list[int] unitSize = unitSize(project, "src", volume);
-	list[int] unitCC = unitComplexity(project, "src", volume);
+	
+	analyseProject(project, "src");
+	list[int] unitSize = unitSize(volume);
+	list[int] unitCC = unitComplexity(volume);
 	
 	int volumeRating = 4;
 	for (i <- index(volumeBounds)) {

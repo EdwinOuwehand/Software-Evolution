@@ -19,20 +19,20 @@ import Volume;
 private list[int] ccScale 	= [50, 20, 10, 0];
 private list[int] sizeScale = [60, 40, 20, 0];
 
-//private list[tuple[int, int]] analysedList;
-//
-//public void analyseProject() {
-//	
-//}
+private list[tuple[int, int]] analysedList;
 
-public list [int] unitComplexity (loc project, str src, int volume) {
+public void analyseProject(loc project, str src) {
 	lrel[int cc, int uLoc] mapCC(loc file) 
-		= [<cyclomaticComplexity(m), size(filterLines(readFileLines(m@\loc)))> | m <- allMethods(file)];
+		= [<cyclomaticComplexity(m), size(filterLines(readFileLines(m@\loc)))-1> | m <- allMethods(file)];
 	
-	list[tuple[int, int]] ccRes = [*mapCC(f) | /file(f) <- crawl(project + src)];
-	
+	analysedList = [*mapCC(f) | /file(f) <- crawl(project + src)];
+}
+
+public list [int] unitComplexity (int volume) {
+	if(analysedList == []) throw "You must first analyse the project";
+
 	list [int] result = [0,0,0,0];
-	for (<cc, uloc> <- ccRes) {
+	for (<cc, uloc> <- analysedList) {
 		for(i <- index(ccScale)) {
 			if(cc > ccScale[i]){
 				result[i] += uloc;
@@ -43,12 +43,11 @@ public list [int] unitComplexity (loc project, str src, int volume) {
 	return reverse([percent(uloc, volume) | uloc <- result]);
 }
 
-public list [int] unitSize (loc project, str src, int volume) {
-	list[int] mapCC(loc file) = [size(filterLines(readFileLines(m@\loc))) | m <- allMethods(file)];
-	list[int] ccRes = [*mapCC(f) | /file(f) <- crawl(project + src)];
-	
+public list [int] unitSize (int volume) {
+	if(analysedList == []) throw "You must first analyse the project";
+
 	list [int] result = [0,0,0,0];
-	for (uloc <- ccRes) {
+	for (<cc, uloc> <- analysedList) {
 		for(i <- index(sizeScale)) {
 			if(uloc > sizeScale[i]){
 				result[i] += uloc;
