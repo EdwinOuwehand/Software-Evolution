@@ -9,6 +9,7 @@ import Volume;
 //import Duplication;
 
 list[str] intToRating 			= ["++", "+", "o", "-", "--"];
+list[int] duplicationBounds 	= [3, 5, 10, 20];
 list[int] volumeBounds 			= [66000, 246000, 665000, 1310000];
 list[list[int]] unitCCBounds	= [ [25, 0,  0],  // ++ 
 									[30, 5,  0],  // +
