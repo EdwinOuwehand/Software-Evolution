@@ -21,10 +21,11 @@ private list[int] sizeScale = [60, 40, 20, 0];
 
 private list[tuple[int, int]] analysedList;
 
+// Source: http://www.rascal-mpl.org/#_Metrics
 public void analyseProject(loc project, str src) {
 	lrel[int cc, int uLoc] mapCC(loc file) 
 		= [<cyclomaticComplexity(m), size(filterLines(readFileLines(m@\loc)))-1> | m <- allMethods(file)];
-	
+	// Subtract 1 from uloc, for function header.
 	analysedList = [*mapCC(f) | /file(f) <- crawl(project + src)];
 }
 

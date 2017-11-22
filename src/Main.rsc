@@ -6,7 +6,7 @@ import List;
 
 import UnitAnalysis;
 import Volume;
-import Duplication;
+//import Duplication;
 
 list[str] intToRating 			= ["++", "+", "o", "-", "--"];
 list[int] volumeBounds 			= [66000, 246000, 665000, 1310000];
@@ -22,7 +22,6 @@ list[list[int]] unitSizeBounds	= [ [30, 5,  0 ],  // ++
 
 public void main () {
 	loc project = |project://smallsql0.21_src|;
-	//project = |project://Software-Evolution/test/benchmarkFiles/filtered|;
 	int volume = linesOfCode(project);
 	
 	analyseProject(project, "src");
@@ -39,11 +38,20 @@ public void main () {
 	
 	int unitSizeRating = mapRating(unitSize, unitSizeBounds);
 	int unitCCRating = mapRating(unitCC, unitCCBounds);
+	int duplicationRating = 2;
 	
 	println("-------");
-	println("Volume: " + intToRating[volumeRating]);
-	println("Unit Size: " + intToRating[unitSizeRating]);
-	println("Unit Complexity: " + intToRating[unitCCRating]);
+	println("Volume: \t\t" + intToRating[volumeRating]);
+	println("Unit Size: \t\t" + intToRating[unitSizeRating]);
+	println("Unit Complexity: \t" + intToRating[unitCCRating]);
+	println("Duplication: \t\t" + intToRating[duplicationRating]);
+	
+	println("-------");
+	println("Overall: \t" );
+	println("Analysability: \t" + intToRating[(volumeRating+duplicationRating+unitSizeRating)/3]);
+	println("Changeability: \t" + intToRating[(duplicationRating+unitCCRating)/2]);
+	println("Stability: \tNo data");
+	println("Testability: \t" + intToRating[(unitSizeRating+unitCCRating)/2]);
 	
 	println("-------");
 	println("Unit Size");
