@@ -3,6 +3,7 @@ module Main
 import IO;
 import util::Math;
 import List;
+import DateTime;
 
 import UnitAnalysis;
 import Volume;
@@ -24,6 +25,8 @@ list[list[int]] unitSizeBounds	= [ [30, 5,  0 ],  // ++
 public void main () {
 	loc project = |project://smallsql0.21_src|;
 	//loc project = |project://hsqldb-2.3.1|;
+	
+	println("Starting analysis for <project> at <now()>");
 	
 	list[str] lines = getAllFilteredLines(project);
 	
@@ -77,6 +80,9 @@ public void main () {
 	println("Moderate:\t <unitCC[1]>");
 	println("High:\t\t <unitCC[2]>");
 	println("Very high:\t <unitCC[3]>");
+	println("-------");
+	
+	println("\nAnalysis for <project> complete at <now()>");
 }
 
 public int mapRating (list[int] measurements, list[list[int]]bounds) {

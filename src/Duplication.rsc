@@ -35,8 +35,7 @@ public int duplicatedLines(list[str] lines) {
 	cloneLines = size(duplicateLines) - size(originals);
 		
 	// Result
-	println("<cloneLines> of <n> lines are duplicated code when not counting <size(originals)> originals.");
-	println("<now()>");
+	//println("<cloneLines> of <n> lines are duplicated code when not counting <size(originals)> originals.");
 	return cloneLines;
 }
 
@@ -98,18 +97,18 @@ public list[str] removeNonRelevant(list [str] lines){
 
 //YAY, BUGS! davy.landman@cwi.nl
 
-public map[list[int], list[str]] main(){
-	list [str] rawLines 			= getAllLines(|project://Software-Evolution/test/benchmarkFiles/duplication|);
-	list [str] lines 			= filterLines(rawLines);
-	
-	blocks = getBlocks(lines, 3);
-	writeBinaryValueFile(|file:///tmp/test.bin|, blocks);
-	iprintln(invert(blocks));
-	
-	blocks2 = readBinaryValueFile(#map[list[int], list[str]],|file:///tmp/test.bin|);
-	
-	println("<blocks  == blocks2>");
-	iprintln(invert(blocks2));
-	println("<invert(blocks)  == invert(blocks2)>");
-	return blocks;
-}
+//public map[list[int], list[str]] main(){
+//	list [str] rawLines 			= getAllLines(|project://Software-Evolution/test/benchmarkFiles/duplication|);
+//	list [str] lines 			= filterLines(rawLines);
+//	
+//	blocks = getBlocks(lines, 3);
+//	writeBinaryValueFile(|file:///tmp/test.bin|, blocks);
+//	iprintln(invert(blocks));
+//	
+//	blocks2 = readBinaryValueFile(#map[list[int], list[str]],|file:///tmp/test.bin|);
+//	
+//	println("<blocks  == blocks2>");
+//	iprintln(invert(blocks2));
+//	println("<invert(blocks)  == invert(blocks2)>");
+//	return blocks;
+//}
