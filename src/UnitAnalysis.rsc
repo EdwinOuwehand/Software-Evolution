@@ -58,13 +58,13 @@ public list [int] unitSize (int volume) {
 public set[MethodDec] allMethods(loc file) = {m | /MethodDec m := parse(#start[CompilationUnit], file, allowAmbiguity=true)};
 
 /**
-  * & and | are still missing? 
   * Replace switch?
   * Source: http://www.rascal-mpl.org/#_Metrics
   */
 public int cyclomaticComplexity(MethodDec m) {
 	result = 1;
 	visit (m) {
+		case (Expr)`(<Expr _>)?<Expr _>:<Expr _>`: result += 1;
 		case (Expr)`<Expr _>||<Expr _>`: result += 1;
 		case (Expr)`<Expr _>&&<Expr _>`: result += 1;
 		case (Stm)`do <Stm _> while (<Expr _>);`: result += 1;
@@ -74,7 +74,6 @@ public int cyclomaticComplexity(MethodDec m) {
 		case (Stm)`for (<{Expr ","}* _>; <Expr? _>; <{Expr ","}*_>) <Stm _>` : result += 1;
 		case (Stm)`for (<LocalVarDec _> ; <Expr? e> ; <{Expr ","}* _>) <Stm _>`: result += 1;
 		case (Stm)`for (<FormalParam _> : <Expr _>) <Stm _>` : result += 1;
-		case (Stm)`switch (<Expr _> ) <SwitchBlock _>`: result += 1;
 		case (SwitchLabel)`case <Expr _> :` : result += 1;
 		case (CatchClause)`catch (<FormalParam _>) <Block _>` : result += 1;
 	}
