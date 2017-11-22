@@ -16,10 +16,10 @@ import Type;
 
 import Volume;
 
-private list[int] ccScale 	= [50, 20, 10, 0];
-private list[int] sizeScale = [60, 40, 20, 0];
-
+private list[list[int]] scale = [[50, 20, 10, 0], [60, 40, 20, 0]]; // cc, size
 private list[tuple[int, int]] analysedList;
+private int UNIT_SIZE = 1;
+private int UNIT_COMP = 0;
 
 // Source: http://www.rascal-mpl.org/#_Metrics
 public list[tuple[int, int]] analyseProject(loc project) {
@@ -31,14 +31,14 @@ public list[tuple[int, int]] analyseProject(loc project) {
 	return analysedList;
 }
 
-public list [int] unitComplexity (int volume) {
+public list [int] mapScale (int volume, int s) {
 	if(analysedList == []) throw "You must first analyse the project";
 
 	list [int] result = [0,0,0,0];
-	for (<cc, uloc> <- analysedList) {
-		for(i <- index(ccScale)) {
-			if(cc > ccScale[i]){
-				result[i] += uloc;
+	for (t <- analysedList) {
+		for(i <- index(scale[s])) {
+			if(t[s] > scale[s][i]){
+				result[i] += t[1];
 				break;
 			}
 		}
@@ -46,19 +46,12 @@ public list [int] unitComplexity (int volume) {
 	return reverse([percent(uloc, volume) | uloc <- result]);
 }
 
-public list [int] unitSize (int volume) {
-	if(analysedList == []) throw "You must first analyse the project";
+public list [int] unitComplexity (int volume) {
+	return mapScale(volume, UNIT_COMP);
+}
 
-	list [int] result = [0,0,0,0];
-	for (<cc, uloc> <- analysedList) {
-		for(i <- index(sizeScale)) {
-			if(uloc > sizeScale[i]){
-				result[i] += uloc;
-				break;
-			}
-		}
-	}
-	return reverse([percent(uloc, volume) | uloc <- result]);
+public list [int] unitSize (int volume) {
+	return mapScale(volume, UNIT_SIZE);
 }
 
 // Source: http://www.rascal-mpl.org/#_Metrics
