@@ -64,7 +64,11 @@ public list [int] unitSize (int volume) {
 // Source: http://www.rascal-mpl.org/#_Metrics
 public set[MethodDec] allMethods(loc file) = {m | /MethodDec m := parse(#start[CompilationUnit], file, allowAmbiguity=true)};
 
-// Source: http://www.rascal-mpl.org/#_Metrics
+/**
+  * & and | are still missing? 
+  * Replace switch?
+  * Source: http://www.rascal-mpl.org/#_Metrics
+  */
 public int cyclomaticComplexity(MethodDec m) {
 	result = 1;
 	visit (m) {
