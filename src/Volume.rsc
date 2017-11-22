@@ -9,6 +9,7 @@ import DateTime;
  *  Class responsible for retrieving and filtering lines of Java code
  */
  
+
  //Retrieve all filtered lines of code which will be used for all metrics
  public list[str] getAllFilteredLines(loc rootDir) {
 	return filterLines(getAllLines(rootDir));
@@ -143,3 +144,8 @@ public list [str] dropBlockComment(list [str] lines) {
 	return dropBlockComment(tail(lines));
 }
 
+ public int linesOfCode(loc rootDir){
+	return size(filterLines(getAllLines(rootDir)));
+ }
+ 
+ 
