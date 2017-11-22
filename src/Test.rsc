@@ -20,31 +20,40 @@ import String;
 import IO;
 import util::Math;
 
-// 129 lines 60 low, 37 moderate, 0 high, 0 very high, 32 non unit lines
 public test bool unitCCLines() { 
 	project = |project://Software-Evolution/test/benchmarkFiles/filtered|;
 	list[loc] linesPerUnit = [*[m@\loc | m <- allMethods(f)] | /file(f) <- crawl(project)];
+	int totalUnitLines = size([*readFileLines(e) | e <- linesPerUnit]) - size(linesPerUnit);
+	int volume = linesOfCode(project);
 	
-	int totalUnitLines = size([*readFileLines(e) | e <- linesPerUnit]);
-	real relativeUnitLines = 
-		round(toReal(totalUnitLines)/toReal(linesOfCode(project))*100., 0.1);
+	int relativeUnitLines = percent(totalUnitLines, volume);
+	analyseProject(project);
 	
-	return relativeUnitLines == sum(unitComplexity(project, ""));
+	return relativeUnitLines == sum(unitComplexity(volume));
+}
+
+public test bool unitSizeExpectedByManualCount () {
+	loc project = |project://Software-Evolution/test/benchmarkFiles/filtered|;
+	analyseProject(project);
+	return unitSize(linesOfCode(project)) == [36, 28, 0, 0];
 }
 
 public test bool unitCCExpectedByManualCount () {
-	return unitComplexity(|project://Software-Evolution/test/benchmarkFiles/filtered|, "") == [46.5,28.7,0.0,0.0];
+	loc project = |project://Software-Evolution/test/benchmarkFiles/filtered|;
+	analyseProject(project);
+	return unitComplexity(linesOfCode(project)) == [36, 28, 0, 0];
 }
 
 public test bool unitSizeLines() {
-		project = |project://Software-Evolution/test/benchmarkFiles/filtered|;
+	project = |project://Software-Evolution/test/benchmarkFiles/filtered|;
 	list[loc] linesPerUnit = [*[m@\loc | m <- allMethods(f)] | /file(f) <- crawl(project)];
+	int totalUnitLines = size([*readFileLines(e) | e <- linesPerUnit]) - size(linesPerUnit);
+	int volume = linesOfCode(project);
 	
-	int totalUnitLines = size([*readFileLines(e) | e <- linesPerUnit]);
-	real relativeUnitLines = 
-		round(toReal(totalUnitLines)/toReal(linesOfCode(project))*100., 0.1);
-		
-	return relativeUnitLines == sum(unitSize(project, ""));
+	int relativeUnitLines = percent(totalUnitLines, volume);
+	analyseProject(project);
+	
+	return relativeUnitLines == sum(unitSize(volume));
 }
 
 public test bool knownVolume () {

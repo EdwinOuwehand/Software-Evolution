@@ -9,6 +9,7 @@ import Volume;
 //import Duplication;
 
 list[str] intToRating 			= ["++", "+", "o", "-", "--"];
+list[int] duplicationBounds 	= [3, 5, 10, 20];
 list[int] volumeBounds 			= [66000, 246000, 665000, 1310000];
 list[list[int]] unitCCBounds	= [ [25, 0,  0],  // ++ 
 									[30, 5,  0],  // +
@@ -21,8 +22,8 @@ list[list[int]] unitSizeBounds	= [ [30, 5,  0 ],  // ++
 									[55, 20, 10]]; // -
 
 public void main () {
-	//loc project = |project://smallsql0.21_src|;
-	loc project = |project://hsqldb-2.3.1|;
+	loc project = |project://smallsql0.21_src|;
+	//loc project = |project://hsqldb-2.3.1|;
 	
 	list[str] lines = getAllFilteredLines(project);
 	
@@ -41,7 +42,7 @@ public void main () {
 	
 	int unitSizeRating = mapRating(unitSize, unitSizeBounds);
 	int unitCCRating = mapRating(unitCC, unitCCBounds);
-	int duplicationRating = 2;
+	int duplicationRating = 2;//duplication(project);
 	
 	println("-------");
 	println("Volume: \t\t" + intToRating[volumeRating]);
