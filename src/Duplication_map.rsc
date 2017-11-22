@@ -6,27 +6,27 @@ import List;
 import String;
 import DateTime;
 import Map;
-import ListRelation;
 import Set;
-import Boolean;
-
 
 // Series-1/test/testfiles/duplication
 // |project://smallsql0.21_src|
 
-public int duplicatedLines(str directory) {
+public int duplicatedLines(loc rootDir) {
 	println("Measuring duplication... <now()>");
 	
-	list [str] rawLines 	= getAllLines(|project://smallsql0.21_src|);
-	list [str] lines 	= filterLines(rawLines);
+	list [str] rawLines 			= getAllLines(rootDir);
+	list [str] lines 			= filterLines(rawLines);
+	list [str] relevantLines  	= removeNonRelevant(lines);
 	
 	int n 			= size(lines);
 	int cloneLines 	= 0;
 	int index 		= 0; //index for keeping track of line number, as we're dropping heads when making blocks
 	int threshold 	= 6;
 	
-	map[list[str], set[list[int]]] 	inverted 	= getInvertedBlocks(lines, threshold);
+	map[list[str], set[list[int]]] 	inverted 	= getInvertedBlocks(relevantLines, threshold);
 	map[list[str], set[list[int]]] duplicates 	= (block : inverted[block] | block <- inverted, size(inverted[block]) > 1);
+	//map[list[str], set[list[int]]] noBrackets 	= removeBracketBlocks(duplicates); // Removes brackets after the check, see documentation
+	//duplicates = noBrackets;
 	
 	list[str] originals = dup([*d | d <- toList(domain(duplicates))]);
 	list[list[int]] range = [*r | r <- toList(range(duplicates))];
@@ -78,6 +78,20 @@ public map[list[str], set[list[int]]] getInvertedBlocks(list[str] lines, int thr
 	
 	return blocks;
 }
+
+// Removes characters from the source before the check
+public list[str] removeNonRelevant(list [str] lines){
+	return [ l | l <- lines, l != "{", l != "}", l != "};"];  //, /^import/ !:= l
+}
+
+// Removes blocks with brackets to ignore after the check 
+//public map[list[str], set[list[int]]] removeBracketBlocks(map[list[str], set[list[int]]] blocks) {
+//	// Find all keys (blocks) starting with { or ending with } or };
+//	set[list[str]] brackets = {block | block <- domain(blocks), head(block) != "{", last(block) != "}", last(block) != "};"
+//	};
+//	
+//	return  (block : blocks[block] | block <- blocks, block notin brackets);
+//}
 
 	
 
