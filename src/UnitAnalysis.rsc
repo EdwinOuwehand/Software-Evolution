@@ -72,6 +72,8 @@ public set[MethodDec] allMethods(loc file) = {m | /MethodDec m := parse(#start[C
 public int cyclomaticComplexity(MethodDec m) {
 	result = 1;
 	visit (m) {
+		case (Expr)`(<Expr _>)||(<Expr _>)`: result += 1;
+		case (Expr)`(<Expr _>)&&(<Expr _>)`: result += 1;
 		case (Stm)`do <Stm _> while (<Expr _>);`: result += 1;
 	 	case (Stm)`while (<Expr _>) <Stm _>`: result += 1;
 		case (Stm)`if (<Expr _>) <Stm _>`: result +=1;
