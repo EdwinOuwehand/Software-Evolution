@@ -6,19 +6,14 @@ import String;
 import DateTime;
 
 /**
- *  Returns number of lines of code from all the .java files in the given directory and nested directories, 
- * 	given that the directory is a relative path to the root of an open Eclipse project, such as:
- * 		|project://smallsql0.21_src|
- *		|project://hsqldb-2.3.1/hsqldb|
+ *  Class responsible for retrieving and filtering lines of Java code
  */
-public int linesOfCode(loc directory) {
-	println("Start LOC at <now()>");
-	list [str] allLines 	= getAllLines(directory);	
-	list [str] filteredLines = filterLines(allLines);
-	println("Done at <now()>");
-
-	return size(filteredLines);	
+ 
+ //Retrieve all filtered lines of code which will be used for all metrics
+ public list[str] getAllFilteredLines(loc rootDir) {
+	return filterLines(getAllLines(rootDir));
 }
+
 
 /**
  *	Filters out all multiline comments, single line comments and blank lines from a given list of strings

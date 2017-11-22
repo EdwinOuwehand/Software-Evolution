@@ -24,7 +24,9 @@ public void main () {
 	//loc project = |project://smallsql0.21_src|;
 	loc project = |project://hsqldb-2.3.1|;
 	
-	int volume = linesOfCode(project);
+	list[str] lines = getAllFilteredLines(project);
+	
+	int volume = size(lines);
 	analyseProject(project);
 	list[int] unitSize = unitSize(volume);
 	list[int] unitCC = unitComplexity(volume);

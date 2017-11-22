@@ -1,4 +1,4 @@
-module Duplication_map
+module Duplication
 
 import Volume; 
 import IO;
@@ -7,16 +7,16 @@ import String;
 import DateTime;
 import Map;
 import Set;
+import ValueIO;
+
+
 
 // Series-1/test/testfiles/duplication
 // |project://smallsql0.21_src|
 
-public int duplicatedLines(loc rootDir) {
-	println("Measuring duplication... <now()>");
-	
-	list [str] rawLines 			= getAllLines(rootDir);
-	list [str] lines 			= filterLines(rawLines);
-	list [str] relevantLines  	= removeNonRelevant(lines);
+
+public int duplicatedLines(list[str] lines) {	
+	list [str] relevantLines = removeNonRelevant(lines);
 	
 	int n 			= size(lines);
 	int cloneLines 	= 0;
@@ -42,11 +42,12 @@ public int duplicatedLines(loc rootDir) {
 
 public map[list[int], list[str]] getBlocks(list[str] lines, int threshold) {
 	int index = 0;
-	map[list[int], list[str]] blocks = ([] : []);
+	map[list[int], list[str]] blocks = ();
 	
 	// Get every possible block of 6 lines with its indices
 	while (size(lines) >= threshold) {
-		blocks 	= blocks + ([index..index+threshold] : take(threshold, lines));
+		//blocks 	= blocks + ([index..index+threshold] : take(threshold, lines));
+		blocks[[index..index+threshold]] = take(threshold, lines);
 		lines 	= drop(1, lines);
 		index 	+= 1;
 	}
@@ -93,5 +94,22 @@ public list[str] removeNonRelevant(list [str] lines){
 //	return  (block : blocks[block] | block <- blocks, block notin brackets);
 //}
 
-	
 
+
+//YAY, BUGS! davy.landman@cwi.nl
+
+public map[list[int], list[str]] main(){
+	list [str] rawLines 			= getAllLines(|project://Software-Evolution/test/benchmarkFiles/duplication|);
+	list [str] lines 			= filterLines(rawLines);
+	
+	blocks = getBlocks(lines, 3);
+	writeBinaryValueFile(|file:///tmp/test.bin|, blocks);
+	iprintln(invert(blocks));
+	
+	blocks2 = readBinaryValueFile(#map[list[int], list[str]],|file:///tmp/test.bin|);
+	
+	println("<blocks  == blocks2>");
+	iprintln(invert(blocks2));
+	println("<invert(blocks)  == invert(blocks2)>");
+	return blocks;
+}
