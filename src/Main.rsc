@@ -6,7 +6,7 @@ import List;
 
 import UnitAnalysis;
 import Volume;
-//import Duplication;
+import Duplication;
 
 list[str] intToRating 			= ["++", "+", "o", "-", "--"];
 list[int] duplicationBounds 	= [3, 5, 10, 20];
@@ -39,10 +39,17 @@ public void main () {
 			break;
 		}
 	}
+	int dupResult = percent(duplicatedLines(lines), volume);
+	int duplicationRating = 4;
+	for (i <- index(duplicationBounds)) {
+		if (duplicationBounds[i] >= dupResult) {
+			duplicationRating = i;
+			break;
+		}
+	}
 	
 	int unitSizeRating = mapRating(unitSize, unitSizeBounds);
 	int unitCCRating = mapRating(unitCC, unitCCBounds);
-	int duplicationRating = 2;//duplication(project);
 	
 	println("-------");
 	println("Volume: \t\t" + intToRating[volumeRating]);
