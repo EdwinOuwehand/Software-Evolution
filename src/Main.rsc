@@ -21,8 +21,8 @@ list[list[int]] unitSizeBounds	= [ [30, 5,  0 ],  // ++
 									[55, 20, 10]]; // -
 
 public void main () {
-	//loc project = |project://smallsql0.21_src|;
-	loc project = |project://hsqldb-2.3.1|;
+	loc project = |project://smallsql0.21_src|;
+	//loc project = |project://hsqldb-2.3.1|;
 	
 	int volume = linesOfCode(project);
 	analyseProject(project);
@@ -39,7 +39,7 @@ public void main () {
 	
 	int unitSizeRating = mapRating(unitSize, unitSizeBounds);
 	int unitCCRating = mapRating(unitCC, unitCCBounds);
-	int duplicationRating = 2;
+	int duplicationRating = 2;//duplication(project);
 	
 	println("-------");
 	println("Volume: \t\t" + intToRating[volumeRating]);
