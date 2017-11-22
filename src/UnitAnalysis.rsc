@@ -22,11 +22,13 @@ private list[int] sizeScale = [60, 40, 20, 0];
 private list[tuple[int, int]] analysedList;
 
 // Source: http://www.rascal-mpl.org/#_Metrics
-public void analyseProject(loc project, str src) {
+public list[tuple[int, int]] analyseProject(loc project) {
 	lrel[int cc, int uLoc] mapCC(loc file) 
 		= [<cyclomaticComplexity(m), size(filterLines(readFileLines(m@\loc)))-1> | m <- allMethods(file)];
 	// Subtract 1 from uloc, for function header.
-	analysedList = [*mapCC(f) | /file(f) <- crawl(project + src)];
+	analysedList = [*mapCC(f) | /file(f) <- crawl(project), f.extension == "java"];
+	
+	return analysedList;
 }
 
 public list [int] unitComplexity (int volume) {
@@ -60,7 +62,7 @@ public list [int] unitSize (int volume) {
 }
 
 // Source: http://www.rascal-mpl.org/#_Metrics
-public set[MethodDec] allMethods(loc file) = {m | /MethodDec m := parse(#start[CompilationUnit], file)};
+public set[MethodDec] allMethods(loc file) = {m | /MethodDec m := parse(#start[CompilationUnit], file, allowAmbiguity=true)};
 
 // Source: http://www.rascal-mpl.org/#_Metrics
 public int cyclomaticComplexity(MethodDec m) {

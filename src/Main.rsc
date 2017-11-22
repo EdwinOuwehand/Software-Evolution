@@ -21,10 +21,11 @@ list[list[int]] unitSizeBounds	= [ [30, 5,  0 ],  // ++
 									[55, 20, 10]]; // -
 
 public void main () {
-	loc project = |project://smallsql0.21_src|;
-	int volume = linesOfCode(project);
+	//loc project = |project://smallsql0.21_src|;
+	loc project = |project://hsqldb-2.3.1|;
 	
-	analyseProject(project, "src");
+	int volume = linesOfCode(project);
+	analyseProject(project);
 	list[int] unitSize = unitSize(volume);
 	list[int] unitCC = unitComplexity(volume);
 	
