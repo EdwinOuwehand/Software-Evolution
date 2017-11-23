@@ -23,14 +23,16 @@ list[list[int]] unitSizeBounds	= [ [30, 5,  0 ],  // ++
 									[55, 20, 10]]; // -
 
 public void main () {
-	loc project = |project://smallsql0.21_src|;
-	//loc project = |project://hsqldb-2.3.1|;
+	//loc project = |project://smallsql0.21_src|;
+	loc project = |project://hsqldb-2.3.1|;
 	
 	println("Starting analysis for <project> at <now()>");
 	
 	list[str] lines = getAllFilteredLines(project);
 	
 	int volume = size(lines);
+	println("Lines of code: <volume>");
+	
 	analyseProject(project);
 	list[int] unitSize = unitSize(volume);
 	list[int] unitCC = unitComplexity(volume);
@@ -54,7 +56,7 @@ public void main () {
 	int unitSizeRating = mapRating(unitSize, unitSizeBounds);
 	int unitCCRating = mapRating(unitCC, unitCCBounds);
 	
-	println("-------");
+	println("\n-------");
 	println("Volume: \t\t" + intToRating[volumeRating]);
 	println("Unit Size: \t\t" + intToRating[unitSizeRating]);
 	println("Unit Complexity: \t" + intToRating[unitCCRating]);

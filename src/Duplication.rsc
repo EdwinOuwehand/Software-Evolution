@@ -35,7 +35,7 @@ public int duplicatedLines(list[str] lines) {
 	cloneLines = size(duplicateLines) - size(originals);
 		
 	// Result
-	//println("<cloneLines> of <n> lines are duplicated code when not counting <size(originals)> originals.");
+	println("<cloneLines> out of <n> lines are duplicated code. Removed bracket lines before cheking, and did not count <size(originals)> original occurences.");
 	return cloneLines;
 }
 
