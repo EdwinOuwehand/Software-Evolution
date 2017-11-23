@@ -1,20 +1,17 @@
-module Volume
+/**
+ *  Module responsible for retrieving and filtering lines of Java code
+ */
+ module Volume
 
 import IO;
 import List;
 import String;
 import DateTime;
 
-/**
- *  Class responsible for retrieving and filtering lines of Java code
- */
- 
-
- //Retrieve all filtered lines of code which will be used for all metrics
+ //Retrieve all filtered lines of code which is the sources for all metrics
  public list[str] getAllFilteredLines(loc rootDir) {
 	return filterLines(getAllLines(rootDir));
 }
-
 
 /**
  *	Filters out all multiline comments, single line comments and blank lines from a given list of strings
@@ -25,9 +22,9 @@ public list [str] filterLines(list [str] lines) {
 	list [str] filteredLines = filterMultilineComments(lines);
 
 	return [ trim(x) | x <- filteredLines, 
-								!isEmpty(trim(x)),	 					 
-								!isEntirelyBlockComment(x), 
-								/^\/\// !:= trim(x) ];  // Lines starting with // are completely commented out
+								!isEmpty(trim(x)),	 		// 		Blank lines	 
+								!isEntirelyBlockComment(x), 	//		/* Block comment style on one line*/
+								/^\/\// !:= trim(x) ]; 		// 		Lines starting with // are completely commented out
 }
 
 public bool isEntirelyBlockComment (str line) {
@@ -36,14 +33,14 @@ public bool isEntirelyBlockComment (str line) {
 
 /**
  * 	Gets all lines of code from all the .java files in the given directory and nested directories, 
- * 	given that the directory is a relative path to the root of an open Eclipse project
+ * 	given that the directory is a relative path to the root of an imported Eclipse project.
  * 	
  * 	First step is checking for nested directories and recursively going in there first, retrieving their lines.
- * 	Then retrieve all filenames from the directory, then overloads to recursive method to get lines for each file
+ * 	Then retrieve all filenames from the directory, then overloads to recursive method to get lines for each file.
  */
 public list [str] getAllLines(loc directory) {
-	list [str] lines = [];
-	list [str] directories = [x | x <- listEntries(directory), isDirectory(directory + x)];
+	list [str] lines 		= [];
+	list [str] directories 	= [x | x <- listEntries(directory), isDirectory(directory + x)];
 	
 	while(!isEmpty(directories)) {
 		lines = lines + getAllLines(directory + head(directories));
@@ -55,7 +52,7 @@ public list [str] getAllLines(loc directory) {
 }
 
 /**
-  * Helper function for getAllLines.
+  * Overloaded recusive worker for getAllLines.
   */
 public list [str] getAllLines(loc directory, list [str] files, list [str] lines) {
 	if (isEmpty(files)) {
@@ -76,7 +73,7 @@ public list [str] filterMultilineComments(list [str] lines) {
 	while(!isEmpty(lines)) {
 	
 		// As long as this is not an opening multiline block comment, move lines to the filteredLines list
-		while(!isEmpty(lines) && false == ((/^.*\/\*+.*.*$/ := trim(lines[0])) && (/^.*\/\*+.*\*\/.*$/ !:= trim(lines[0]))) ) {
+		while(!isEmpty(lines) && false == startOfMultilineBlockComment(lines[0])) {
 			filteredLines = filteredLines + trim(lines[0]);
 			lines = drop(1, lines);
 		}
@@ -91,19 +88,22 @@ public list [str] filterMultilineComments(list [str] lines) {
 			} 
 	
 			// Is this really start of a multiline block comment? If so, drop lines until the end of the comment is found
-			else if (!isEmpty(lines) && (/^.*\/\*+.*$/ := trim(lines[0])) && (/^.*\/\*+.*\*\/.*$/ !:= trim(lines[0]))) {
+			else if (!isEmpty(lines) && startOfMultilineBlockComment(lines[0])) {
 				lines = dropBlockComment(lines); 
 			}
 		}
 	}
-	
 	return filteredLines;
 }
 
+public bool startOfMultilineBlockComment(str line) {
+	return (/^.*\/\*+.*$/ := trim(line)) && (/^.*\/\*+.*\*\/.*$/ !:= trim(line));
+}
+
 public bool insideString (str line) {
-	if(!isEmpty(line)){
-		int endStr = findFirst(line, "/*");
-		line = line[..endStr];		
+	if(!isEmpty(line)) {
+		int endStr 	= findFirst(line, "/*");
+		line 		= line[..endStr];		
 	}
 	
 	// If there's an open string (noticable by odd number of ") before this /*
@@ -127,7 +127,7 @@ public list [str] dropBlockComment(list [str] lines) {
 	// If */ followed by characters (code), return including this line.
 	if (/^.*\*\/.+/ := line) {
 	
-	//check if immediately re-opening -> keep dropping
+	//check if immediately re-opening -> keep dropping. Otherwise */ /* will break things and start including comments
 		if (/^.*\*\/\*/ := line) {
 			dropBlockComment(tail(lines));
 		} else {
@@ -147,5 +147,3 @@ public list [str] dropBlockComment(list [str] lines) {
  public int linesOfCode(loc rootDir){
 	return size(filterLines(getAllLines(rootDir)));
  }
- 
- 

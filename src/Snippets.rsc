@@ -4,14 +4,14 @@ import IO;
 import lang::java::m3::Core;
 import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
-import ParseTree;
-import util::Math;
-
-import List;
-import Exception;
-import util::FileSystem;
 import lang::java::\syntax::Disambiguate;
 import lang::java::\syntax::Java15;
+import util::FileSystem;
+import util::Math;
+
+import ParseTree;
+import Exception;
+import List;
 import Type;
 
 public void methodsBasedOnM3() {

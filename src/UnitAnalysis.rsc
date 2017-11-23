@@ -4,20 +4,21 @@ import IO;
 import lang::java::m3::Core;
 import lang::java::jdt::m3::Core;
 import lang::java::jdt::m3::AST;
-import ParseTree;
-import util::Math;
-
-import List;
-import Exception;
-import util::FileSystem;
 import lang::java::\syntax::Disambiguate;
 import lang::java::\syntax::Java15;
+import util::FileSystem;
+import util::Math;
+
+import ParseTree;
+import Exception;
+import List;
 import Type;
 
 import Volume;
 
-private list[list[int]] scale = [[50, 20, 10, 0], [60, 40, 20, 0]]; // cc, size
 private list[tuple[int, int]] analysedList;
+private list[list[int]] scale = [[50, 20, 10, 0], [60, 40, 20, 0]]; // cc, size
+
 private int UNIT_SIZE = 1;
 private int UNIT_COMP = 0;
 
@@ -54,13 +55,14 @@ public list [int] unitSize (int volume) {
 	return mapScale(volume, UNIT_SIZE);
 }
 
-// Source: http://www.rascal-mpl.org/#_Metrics
+/**
+ *	Source: http://www.rascal-mpl.org/#_Metrics
+ */ 
 public set[MethodDec] allMethods(loc file) = {m | /MethodDec m := parse(#start[CompilationUnit], file, allowAmbiguity=true)};
 
 /**
-  * Replace switch?
-  * Source: http://www.rascal-mpl.org/#_Metrics
-  */
+ *	Source: http://www.rascal-mpl.org/#_Metrics
+ */ 
 public int cyclomaticComplexity(MethodDec m) {
 	result = 1;
 	visit (m) {
