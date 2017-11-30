@@ -8,6 +8,20 @@ import List;
 import String;
 import DateTime;
 
+// Lines containing only a bracket should not be counted as a duplicate line; these brackets are moved to the previous line to retain code structure (see documentation)
+ public lrel[str, loc, int] moveBrackets (lrel[str, loc, int] lines) {
+ 	lrel[str, loc, int] result = [];
+ 	
+ 	for(int i <- index(lines)) {
+ 		if(lines[i][0] == "}" || lines[i][0] == "};" || lines[i][0] == "{") {
+ 			result[(size(result)-1)][0] += lines[i][0];
+ 		} else {
+ 			result = result + lines[i];
+ 		}
+ 	}
+ 	return result; 	
+ }
+
  //Retrieve all filtered lines of code which is the sources for all metrics
  public lrel[str, loc, int] getAllFilteredLines(loc rootDir) {
 	return filterLines(getAllLines(rootDir));
@@ -35,6 +49,8 @@ public bool isEntirelyBlockComment (str line) {
  * 	Gets all lines of code from all the .java files in the given directory and nested directories, 
  * 	given that the directory is a relative path to the root of an imported Eclipse project.
  * 	
+ *	The line content is saved along with the file loc and the original line number. 	
+ *
  * 	First step is checking for nested directories and recursively going in there first, retrieving their lines.
  * 	Then retrieve all filenames from the directory, then overloads to recursive method to get lines for each file.
  */
