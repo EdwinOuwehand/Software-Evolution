@@ -14,10 +14,12 @@ import Exception;
 import List;
 import Type;
 
-public void methodsBasedOnM3() {
+public lrel[str, loc] methodsBasedOnM3() {
 	M3 myModel = createM3FromEclipseProject(|project://smallsql0.21_src/src|);
 	set[loc] methods = methods(myModel);
-	list[str] methodStr = [readFile(method) | method <- methods]; // Still works, ha!
+	return [<readFile(method), method> | method <- methods]; // Still works, ha!
+	
+	//return methodStr;
 }
 
 public void totalDeclsAndStmts() {
