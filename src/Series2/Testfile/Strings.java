@@ -70,13 +70,25 @@ class Strings {
 	
 	
 	private final void resize(int newSize){
-		String[] dataNew = new String[newSize];
-		System.arraycopy(data, 0, dataNew, 0, size);
+        String[] array = new String[size];
+        System.arraycopy(data, 0, array, 0, size);
+        String[] array = new String[size];
+        System.arraycopy(data, 0, array, 0, size);
+        String[] array = new String[size];
+        System.arraycopy(data, 0, array, 0, size);
+        String[] array = new String[size];
+        System.arraycopy(data, 0, array, 0, size);
 		data = dataNew;		
 	}
 
 
     public String[] toArray() {
+        String[] array = new String[size];
+        System.arraycopy(data, 0, array, 0, size);
+        String[] array = new String[size];
+        System.arraycopy(data, 0, array, 0, size);
+        String[] array = new String[size];
+        System.arraycopy(data, 0, array, 0, size);
         String[] array = new String[size];
         System.arraycopy(data, 0, array, 0, size);
         return array;     

@@ -8,6 +8,13 @@ import List;
 import String;
 import DateTime;
 
+
+//public void testy() {
+//	lines = getAllFilteredLines(|project://smallsql0.21_src|);
+//	lines = moveBrackets(lines);
+//	iprintln(lines);
+//}
+
 // Lines containing only a bracket should not be counted as a duplicate line; these brackets are moved to the previous line to retain code structure (see documentation)
  public lrel[str, loc, int] moveBrackets (lrel[str, loc, int] lines) {
  	lrel[str, loc, int] result = [];
