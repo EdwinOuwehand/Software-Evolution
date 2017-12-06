@@ -7,13 +7,26 @@ import List;
 import String;
 import DateTime;
 
+
+alias BlockOfCode = list[str];
+
+alias File = loc;
+alias LineNumber = int;
+alias LineLocations = lrel[File, LineNumber];
+
+// A collection of blocks of code and their locations - Per block, a set of all locations of occurrence is given
+alias Blocks = map[BlockOfCode, set[LineLocations]];
+
 public int findClones(lrel[str, loc, int] lines) {	
 	int volume 		= size(lines);
 	int cloneLines 	= 0;
 	int threshold 	= 6; // Minimum clone size
 	
-	map[list[str], set[lrel[loc,int]]] cloneClasses 			= (); 
-	list[map[list[str], set[lrel[loc,int]]]] orderedBlocks 	= getAllBlocks(lines, threshold);	// Collection of all the blocks, one list entry for each threshold size.
+	// Collection of all the blocks of increasing threshold sizes. One list entry for each threshold size.
+	list[Blocks] orderedBlocks 	= getAllBlocks(lines, threshold);	
+	
+	Blocks cloneClasses = (); 
+	
 	
 	// TODO: 
 	// 		- Start on the bottom of orderedBlocks i.e. the largest blocks
@@ -35,13 +48,13 @@ public int findClones(lrel[str, loc, int] lines) {
 /**
  *	Create blocks of increasing threshold size until the largest clone has been found
  */
-public list[map[list[str], set[lrel[loc,int]]]] getAllBlocks (lrel[str, loc, int] lines, int threshold) {
+public list[Blocks] getAllBlocks (lrel[str, loc, int] lines, int threshold) {
 	bool largestBlockFound = false;
-	list[map[list[str], set[lrel[loc,int]]]] orderedBlocks = [];
+	list[Blocks] orderedBlocks = [];
 	
 	do {
-		map[list[str], set[lrel[loc,int]]] ordBlocks		= getOrderedBlocks(lines, threshold);
-		map[list[str], set[lrel[loc,int]]] duplicates 	= (block : ordBlocks[block] | block <- ordBlocks, size(ordBlocks[block]) > 1);
+		Blocks ordBlocks		= getOrderedBlocks(lines, threshold);
+		Blocks duplicates 	= (block : ordBlocks[block] | block <- ordBlocks, size(ordBlocks[block]) > 1);
 		
 		orderedBlocks = orderedBlocks + duplicates;
 		threshold += 1;
@@ -61,14 +74,14 @@ public list[map[list[str], set[lrel[loc,int]]]] getAllBlocks (lrel[str, loc, int
  * 	- For type 2 if identifiers etc. are made uniform first,
  *	- For type 3 if ordering of blocks takes note of gaps (TODO)
  */ 
-public map[list[str], set[lrel[loc,int]]] getOrderedBlocks(list[tuple[str, loc, int]] lines, int threshold) {
-	map[list[str], set[lrel[loc,int]]] ordBlocks = ();
+public Blocks getOrderedBlocks(list[tuple[str, loc, int]] lines, int threshold) {
+	Blocks ordBlocks = ();
 	int index = 0;
 	
 	while (size(lines) >= threshold) {
 		// Take a block, split lines from locs
-		list [str] blockLines 			= [bLines | <bLines, locations, lineNumbers> <- take(threshold, lines)];
-		list [tuple[loc,int]] blockLocs 	= [<locations, lineNumbers> | <lin, locations, lineNumbers> <- take(threshold, lines)];
+		BlockOfCode blockLines 	= [bLines | <bLines, locations, lineNumbers> <- take(threshold, lines)];
+		LineLocs blockLocations 	= [<locations, lineNumbers> | <lin, locations, lineNumbers> <- take(threshold, lines)];
 	
 		/** WANTED TO DO SOMETHING LIKE THIS, BUT THERE'S NO FANCY WAY TO DO THIS :( **/		
 		//tuple[list[str] lines, list[tuple[loc,int]] locs] block = 
