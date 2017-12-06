@@ -10,9 +10,9 @@ import DateTime;
 
 alias BlockOfCode = list[str];
 
-alias File = loc;
-alias LineNumber = int;
-alias LineLocations = lrel[File, LineNumber];
+alias File 			= loc;
+alias LineNumber 	= int;
+alias LineLocations 	= lrel[File, LineNumber];
 
 // A collection of blocks of code and their locations - Per block, a set of all locations of occurrence is given
 alias Blocks = map[BlockOfCode, set[LineLocations]];
@@ -25,8 +25,7 @@ public int findClones(lrel[str, loc, int] lines) {
 	// Collection of all the blocks of increasing threshold sizes. One list entry for each threshold size.
 	list[Blocks] orderedBlocks 	= getAllBlocks(lines, threshold);	
 	
-	Blocks cloneClasses = (); 
-	
+	Blocks cloneClasses = extractClones(orderedBlocks);
 	
 	// TODO: 
 	// 		- Start on the bottom of orderedBlocks i.e. the largest blocks
@@ -81,7 +80,7 @@ public Blocks getOrderedBlocks(list[tuple[str, loc, int]] lines, int threshold) 
 	while (size(lines) >= threshold) {
 		// Take a block, split lines from locs
 		BlockOfCode blockLines 	= [bLines | <bLines, locations, lineNumbers> <- take(threshold, lines)];
-		LineLocs blockLocations 	= [<locations, lineNumbers> | <lin, locations, lineNumbers> <- take(threshold, lines)];
+		LineLocations blockLocations 	= [<locations, lineNumbers> | <lin, locations, lineNumbers> <- take(threshold, lines)];
 	
 		/** WANTED TO DO SOMETHING LIKE THIS, BUT THERE'S NO FANCY WAY TO DO THIS :( **/		
 		//tuple[list[str] lines, list[tuple[loc,int]] locs] block = 
@@ -89,11 +88,11 @@ public Blocks getOrderedBlocks(list[tuple[str, loc, int]] lines, int threshold) 
 		
 		// If there is already an entry for this code block, add the indices to its set of values
 		if (ordBlocks[blockLines]?) {
-			ordBlocks[blockLines] = ordBlocks[blockLines] + {blockLocs};
+			ordBlocks[blockLines] = ordBlocks[blockLines] + {blockLocations};
 			
 		// If this is our first encounter of these lines, add new entry of lines and indices to the code blocks 			
 		} else {
-			ordBlocks[blockLines] = {blockLocs};
+			ordBlocks[blockLines] = {blockLocations};
 		}
 		
 		lines 	= drop(1, lines);
