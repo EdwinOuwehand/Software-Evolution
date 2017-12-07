@@ -1,11 +1,3 @@
-@license{
-  Copyright (c) 2009-2013 CWI
-  All rights reserved. This program and the accompanying materials
-  are made available under the terms of the Eclipse Public License v1.0
-  which accompanies this distribution, and is available at
-  http://www.eclipse.org/legal/epl-v10.html
-}
-
 module Visual
 
 import vis::Figure;
@@ -13,41 +5,38 @@ import vis::Render;
 import IO;
 import util::Math;
 
-data ColoredTree = leaf(int N)
-                 | red(ColoredTree left, ColoredTree right) 
-                 | black(ColoredTree left, ColoredTree right)
-                 | green(ColoredTree left, ColoredTree right)
-                 ;
 
-public Figure visColoredTree(leaf(int N)) = 
-	box(text("<N>"), gap(2), fillColor("lightyellow"));                    
-
-public Figure visColoredTree(red(ColoredTree left, ColoredTree right)) = 
-	visNode("red", left, right);                                           
-
-public Figure visColoredTree(black(ColoredTree left, ColoredTree right)) = 
-	visNode("black", left, right);
-
-public Figure visColoredTree(green(ColoredTree left, ColoredTree right)) = 
-	visNode("green", left, right);
-
-public Figure visNode(str color, ColoredTree left, ColoredTree right) =     
-	tree(ellipse(fillColor(color)), [visColoredTree(left), visColoredTree(right)]);
-
-public ColoredTree rb = red(black(leaf(1), red(leaf(2),leaf(3))), green(leaf(3), leaf(4)));
-
-
-
-//// ------------------
-
-
-public bool intInput(str s){
-	return /^[0-9]+$/ := s;
+public void handleClick(str algType, str project) 
+{
+	println(algType);
+	println(project);
+	
+	
 }
 
-public Figure higher(){
-	int H = 100;
-    return vcat( [ textfield("<H>", void(str s){H = toInt(s);}, intInput),
-	               box(width(100), vresizable(false), vsize(num(){return H;}), fillColor("red"))
-	             ], shrink(0.5), resizable(false));
+public Figure cloneClass(list[rel[str, int]] class) 
+{
+	rel[str, int] example = head(class);
+	
+	//str example =
+
+	return vcat([	text()
+	], resizable(false, false), gap(20));
+}
+
+public Figure paramSelection() 
+{
+	str algType = "Type-1";
+	str selProject = "smallsql";
+	
+  	return vcat([ 	combo(["Type-1", "Type-2", "Type-3"], 	void(str s){ algType = s; }),
+                	combo(["smallsql", "hsqldb"], 			void(str s){ selProject = s; }),
+                	button("Analyse Project", 				void(){ handleClick(algType, selProject); }, 
+                											hsize(200), resizable(false, false))
+              ], resizable(false, false), gap(20));
+}
+
+public void main()
+{
+	render("Menu", paramSelection());
 }
