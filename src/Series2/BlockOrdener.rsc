@@ -7,6 +7,10 @@ import List;
 import String;
 import DateTime;
 
+import util::ValueUI;
+
+import Series2::LineProcessor;
+
 
 alias BlockOfCode = list[str];
 
@@ -17,15 +21,41 @@ alias LineLocations 	= lrel[File, LineNumber];
 // A collection of blocks of code and their locations - Per block, a set of all locations of occurrence is given
 alias Blocks = map[BlockOfCode, set[LineLocations]];
 
-public int findClones(lrel[str, loc, int] lines) {	
+public Blocks cloneClasses = ();
+
+public void testy() {
+	println("Starting run at <now()>");
+//todo: test += operator
+	//lines = getAllFilteredLines(|project://fragment_smallsql|);
+	lines = getAllFilteredLines(|project://smallsql0.21_src|);
+	lines = moveBrackets(lines);
+	
+	//list[Blocks] blokjes = getAllBlocks(lines, 6);
+	//cloneClasses = extractClones(blokjs);
+	//iprintln(take(10,cloneClasses));
+	
+	text(findClones(lines));
+		println("Done at <now()>");
+	
+}
+
+public Blocks findClones(lrel[str, loc, int] lines) {	
+
+	println("Start finding clones at <now()>");
+
 	int volume 		= size(lines);
 	int cloneLines 	= 0;
 	int threshold 	= 6; // Minimum clone size
-	
+		
 	// Collection of all the blocks of increasing threshold sizes. One list entry for each threshold size.
 	list[Blocks] orderedBlocks 	= getAllBlocks(lines, threshold);	
 	
+	println("Ordered blocks at <now()>");
+	
+	
 	Blocks cloneClasses = extractClones(orderedBlocks);
+	
+	
 	
 	// TODO: 
 	// 		- Start on the bottom of orderedBlocks i.e. the largest blocks
@@ -41,15 +71,83 @@ public int findClones(lrel[str, loc, int] lines) {
 	//				- Cut up deleted overlap-keys and remaining block keys for next run 
 	
 	
-	return cloneLines;
+	return cloneClasses;
 }
+
+public Blocks extractClones (list[Blocks] blocks) {
+	// Reverse blocks so that the largest blocks are on front
+	println("Reverse blocks at <now()>");
+	blocks = reverse(blocks);
+	println("Done reversing at <now()>");
+	// The first block contains the largest clone classes, and does not contain overlapping blocks so can be added right away.
+	cloneClasses = cloneClasses + (head(blocks));
+	
+	// Cut the keys up into the expected overlap keys for next blocks
+	println("Cutting first keys at <now()>");
+	set[BlockOfCode] overlapKeys = splitKeys(domain(head(blocks)));
+
+	println("Extracting all other clones at <now()>");
+	// Call recursive method for remaining blocks, pass the keys to ignore
+	extractClones(tail(blocks), overlapKeys);
+	
+	return cloneClasses;
+}
+
+// Recursive method. 
+// blocks: list of blocks of decreasing threshold size. 
+// keys: keys to remove/ignore - these are overlapping blocks and already contained in cloneClasses
+public void extractClones (list[Blocks] blocksList, set[BlockOfCode] overlapKeys) {
+	if(isEmpty(blocksList)) {
+		println("Blocks empty at <now()>");
+		return;	
+	} 
+
+	Blocks currentBlocks = head(blocksList);
+	
+	// Filter out overlapping blocks
+	println("Filter out given keys at <now()>");
+	currentBlocks = domainX(currentBlocks, overlapKeys);
+	
+	// Add remaining blocks - these should be non-overlapping only
+	println("Adding cloneClasses at <now()>");
+	cloneClasses = cloneClasses + currentBlocks;
+	
+	// Split the keys of the remaining blocks, as well as the given overlapKeys
+	println("Splitting next keys to remove at <now()>");
+	set[BlockOfCode] nextKeys = {};
+	nextKeys = nextKeys + (splitKeys(domain(currentBlocks)));
+	nextKeys = nextKeys + (splitKeys(overlapKeys)); 
+	
+	// Recursion
+	extractClones(tail(blocksList), nextKeys);
+}
+
+// Splits given blocks of code (which serve as keys in our map "Blocks") in [all but the last element] and [all but the first element].
+public set[BlockOfCode] splitKeys (set[BlockOfCode] keys) {
+	set[BlockOfCode] split = {};
+	int n = size(keys);
+	println("Lets split <n> keys at <now()>");
+
+	list[BlockOfCode] listKeys = toList(keys);
+
+	for (int i <- index(listKeys)) {
+	println("<i>/<n>");
+		BlockOfCode key = listKeys[i];
+		split = split + {prefix(key)};
+		split = split + {tail(key)};
+	}
+	println("Done splitting keys at <now()>");
+	
+	return split;
+}
+
 
 /**
  *	Create blocks of increasing threshold size until the largest clone has been found
  */
 public list[Blocks] getAllBlocks (lrel[str, loc, int] lines, int threshold) {
-	bool largestBlockFound = false;
-	list[Blocks] orderedBlocks = [];
+	bool largestBlockFound 		= false;
+	list[Blocks] orderedBlocks 	= [];
 	
 	do {
 		Blocks ordBlocks		= getOrderedBlocks(lines, threshold);
@@ -63,6 +161,7 @@ public list[Blocks] getAllBlocks (lrel[str, loc, int] lines, int threshold) {
 			largestBlockFound = true;
 		}		
 	} while (!largestBlockFound);
+	println("Largest block found at <now()> :D");
 	
 	return orderedBlocks;
 }
@@ -79,7 +178,7 @@ public Blocks getOrderedBlocks(list[tuple[str, loc, int]] lines, int threshold) 
 	
 	while (size(lines) >= threshold) {
 		// Take a block, split lines from locs
-		BlockOfCode blockLines 	= [bLines | <bLines, locations, lineNumbers> <- take(threshold, lines)];
+		BlockOfCode blockLines 			= [bLines | <bLines, locations, lineNumbers> <- take(threshold, lines)];
 		LineLocations blockLocations 	= [<locations, lineNumbers> | <lin, locations, lineNumbers> <- take(threshold, lines)];
 	
 		/** WANTED TO DO SOMETHING LIKE THIS, BUT THERE'S NO FANCY WAY TO DO THIS :( **/		
