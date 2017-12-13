@@ -25,16 +25,20 @@ public Blocks cloneClasses = ();
 
 public void testy() {
 	println("Starting run at <now()>");
-//todo: test += operator
 	//lines = getAllFilteredLines(|project://fragment_smallsql|);
-	lines = getAllFilteredLines(|project://smallsql0.21_src|);
+	//|project://smallsql0.21_src|
+	//lrel[str,loc,int] lines = getAllFilteredLines(|project://Software-Evolution/src/Series2/TinyTestfile|,true,true,true,true, false);//(|project://fragment_smallsql|, true, true, true, true, false);//(|project://smallsql0.21_src|);
+	
+	lines = getAllFilteredLines(|project://smallsql0.21_src|, false,false,false,false,false);
 	lines = moveBrackets(lines);
 	
 	//list[Blocks] blokjes = getAllBlocks(lines, 6);
 	//cloneClasses = extractClones(blokjs);
 	//iprintln(take(10,cloneClasses));
 	
-	text(findClones(lines));
+	clones = (findClones(lines));
+	
+	println(size(clones));
 		println("Done at <now()>");
 	
 }
@@ -126,12 +130,12 @@ public void extractClones (list[Blocks] blocksList, set[BlockOfCode] overlapKeys
 public set[BlockOfCode] splitKeys (set[BlockOfCode] keys) {
 	set[BlockOfCode] split = {};
 	int n = size(keys);
-	println("Lets split <n> keys at <now()>");
+	//println("Lets split <n> keys at <now()>");
 
 	list[BlockOfCode] listKeys = toList(keys);
 
 	for (int i <- index(listKeys)) {
-	println("<i>/<n>");
+	//println("<i>/<n>");
 		BlockOfCode key = listKeys[i];
 		split = split + {prefix(key)};
 		split = split + {tail(key)};

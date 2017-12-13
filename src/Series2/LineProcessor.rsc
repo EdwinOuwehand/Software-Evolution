@@ -8,12 +8,20 @@ import List;
 import String;
 import DateTime;
 
+import lang::java::m3::Core;
+import lang::java::jdt::m3::Core;
+import lang::java::jdt::m3::AST;
+import lang::java::\syntax::Disambiguate;
+import lang::java::\syntax::Java15;
+import util::FileSystem;
+import util::Math;
+import util::ValueUI;
 
-//public void testy() {
-//	lines = getAllFilteredLines(|project://smallsql0.21_src|);
-//	lines = moveBrackets(lines);
-//	iprintln(lines);
-//}
+public bool type2VarNames 	= false; 
+public bool type2MetNames	= false;
+public bool type2Literals	= false;
+public bool type2Types		= false;
+public bool type3 			= false;
 
 // Lines containing only a bracket should not be counted as a duplicate line; these brackets are moved to the previous line to retain code structure (see documentation)
  public lrel[str, loc, int] moveBrackets (lrel[str, loc, int] lines) {
@@ -30,7 +38,13 @@ import DateTime;
  }
 
  //Retrieve all filtered lines of code which is the sources for all metrics
- public lrel[str, loc, int] getAllFilteredLines(loc rootDir) {
+ public lrel[str, loc, int] getAllFilteredLines(loc rootDir, bool t2v, bool t2m, bool t2l, bool t2t, bool t3) {
+ 	type2VarNames 	= t2v;
+ 	type2MetNames 	= t2m;
+ 	type2Literals 	= t2l;
+ 	type2Types		= t2t;
+ 	type3 			= t3;
+ 	
 	return filterLines(getAllLines(rootDir));
 }
 
@@ -85,10 +99,139 @@ public lrel[str, loc, int] getAllLines(loc directory, list [str] files, lrel[str
 	loc file = directory + head(files);
 	list [str] fileLines = readFileLines(file);
 	
+	if (type2VarNames || type2MetNames || type2Literals || type2Types || type3) {
+		fileLines = processCloneTypeSettings(file, fileLines);
+	} 
+	
 	//Add locations to lines
 	lrel[str, loc, int] linesLocs = [ <trim(fileLines[i]), file, i+1> | i <- index(fileLines)];
 		
 	return getAllLines(directory, tail(files), lines + linesLocs);
+}
+
+public list[str] processCloneTypeSettings(loc file, list[str] fileLines) {
+	Declaration ast = createAstFromFile(file, true);
+	
+	list[Expression] vars 	= [];	
+	list[str] varNames	 	= [];
+	list[str] metNames 		= [];
+	list[str] literals 		= [];
+		
+	visit(ast) {
+		case field(a, list[Expression] b): 	vars += b;
+		case method(a, str b, c, d, e): 		metNames += b;
+		case number(a): 						literals += a;
+		case stringLiteral(a): 				literals += a;
+		case characterLiteral(a): 			literals += a;
+	}
+	
+	varNames = [var.name | var <- vars];
+	
+	if(type2Types) {
+		fileLines = equalizeTypes(fileLines, varNames, metNames);
+	}
+	
+	if(type2VarNames || type2MetNames) {
+		fileLines = equalizeNames(fileLines, varNames, metNames);
+	}
+	
+	if(type2Literals) {
+		fileLines = equalizeLiterals(fileLines, literals);
+	}
+	
+	return fileLines;
+}
+
+public list[str] equalizeTypes(list[str] fileLines, list[str] varNames, list[str] metNames) {
+	list[str] names = varNames + metNames;
+	
+	for(int i <- index(fileLines)) {
+		// Split line into list of words, by space
+		list[str] splitLine = separate(fileLines[i]);
+		
+		for(int j <- index(splitLine)) {
+			if(splitLine[j] in names) {
+				if(splitLine[j-1] != "=" && trim(splitLine[j-1]) != "this.") {
+					splitLine[j-1] = "*typ";
+				}
+			}
+		}
+		// Turn it back into one line
+		fileLines[i] = glue(splitLine);
+	}
+	return fileLines;
+}
+
+public list[str] equalizeNames(list[str] fileLines, list[str] varNames, list[str] metNames) {
+	list[str] names = [];
+	
+	if (type2VarNames) {
+		names += varNames;
+	}
+	
+	if (type2MetNames) {
+		names += metNames;
+	}
+	
+	for(int i <- index(fileLines)) {
+		// Split line into list of words, by space
+		list[str] splitLine = separate(fileLines[i]);
+		
+		for(int j <- index(splitLine)) {
+			if(splitLine[j] in names) {
+				splitLine[j] = "*id";
+			}
+		}
+		// Turn it back into one line
+		fileLines[i] = glue(splitLine);
+	}
+	return fileLines;
+}
+
+public list[str] equalizeLiterals(list[str] fileLines, list[str] literals) {
+	for(int i <- index(fileLines)) {	
+		// Split line into list of words, by space
+		list[str] splitLine = separate(fileLines[i]);
+		
+		for(int j <- index(splitLine)) {
+			if(splitLine[j] in literals) {
+				splitLine[j] = "*val";
+			}
+		}
+		// Turn it back into one line
+		fileLines[i] = glue(splitLine);
+	}	
+	return fileLines;
+}
+
+public list[str] separate (str line) {
+		line = replaceAll(line, ".", ". ");
+		line = replaceAll(line, ",", " ,");
+		line = replaceAll(line, ";", " ;");
+		line = replaceAll(line, "(", " ( ");
+		line = replaceAll(line, ")", " ) ");
+		line = replaceAll(line, "{", " { ");
+		line = replaceAll(line, "}", " } ");
+		
+		return split(" ", line);
+}
+
+public str glue (list[str] lines) {
+
+		lines = [line | line <- lines, !isEmpty(line)];
+		line = intercalate(" ", lines);
+	
+	//	Not necessary, all lines get same treatment anyway, some extra spaces in between don't matter.
+	
+	//	line = replaceAll(line, ". ", ".");
+	//	line = replaceAll(line, " ,", ",");
+	//	line = replaceAll(line, " ;", ";");
+	//	line = replaceAll(line, " ( ", "(");
+	//	line = replaceAll(line, " )", ")");
+	//	line = replaceAll(line, " {", "{");
+	//	line = replaceAll(line, " } ", "}");
+	
+		return line;
 }
 
 /**
