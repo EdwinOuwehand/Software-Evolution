@@ -15,37 +15,13 @@ import lang::java::\syntax::Disambiguate;
 import lang::java::\syntax::Java15;
 import util::FileSystem;
 import util::Math;
-//
-//import Node;
-//
 import util::ValueUI;
-//
-//import Set;
-//
-//import ParseTree;
-//import Exception;
-//import List;
-//import Type;
-
 
 public bool type2VarNames 	= false; 
 public bool type2MetNames	= false;
 public bool type2Literals	= false;
 public bool type2Types		= false;
 public bool type3 			= false;
-
-public void testy() {
-
-	//str hoi = "   ha ll o    ";
-	//println(hoi);
-	//println(trim(hoi));
-	lrel[str,loc,int] lines = getAllFilteredLines(|project://Software-Evolution/src/Series2/TinyTestfile|,true,true,true,true, false);//(|project://fragment_smallsql|, true, true, true, true, false);//(|project://smallsql0.21_src|);
-	list[str] rlinesList = [rlines | <rlines, fl, ln> <- lines];
-	print(rlinesList);
-	//
-	lines = moveBrackets(lines);
-	text(lines);
-}
 
 // Lines containing only a bracket should not be counted as a duplicate line; these brackets are moved to the previous line to retain code structure (see documentation)
  public lrel[str, loc, int] moveBrackets (lrel[str, loc, int] lines) {
