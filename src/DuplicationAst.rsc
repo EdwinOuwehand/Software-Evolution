@@ -17,7 +17,7 @@ import Type;
 
 public list[start[CompilationUnit]] execute (loc project) {
 	
-	return [*parseIt(f) | /file(f) <- crawl(project), f.extension == "java"];
+	return [parseIt(f) | /file(f) <- crawl(project), f.extension == "java"];
 }
 
 public start[CompilationUnit] parseIt (loc file) {

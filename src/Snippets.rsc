@@ -15,7 +15,7 @@ import Set;
 
 import ParseTree;
 import Exception;
-import List;
+//import List;
 import Type;
 
 public lrel[str, loc] methodsBasedOnM3() {
@@ -51,6 +51,8 @@ public void totalDeclsAndStmts() {
 	
 	println("Total stmts:");
 	println(statements(ast));
+	
+	return ast; 
 }
 
 public void averageUnitSize(list[tuple[int, int]] ccRes, real volume){
