@@ -3,12 +3,6 @@ module Series2::Main
 import Series2::BlockOrdener;
 import Series2::LineProcessor;
 
-public bool type2VarNames 	= false; 
-public bool type2MetNames	= false;
-public bool type2Literals	= false;
-public bool type2Types		= false;
-public bool type3 			= false;
-
 alias BlockOfCode = list[str];
 
 alias File 			= loc;
