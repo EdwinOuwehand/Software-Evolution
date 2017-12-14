@@ -15,10 +15,11 @@ import Series2::Main;
 public void handleClick(str project, list[bool] settings) 
 {
 	println(project);
+	map[list[str], set[lrel[loc,int]]] result = ();
 	
 	//loc rootDir, bool type2VarNames, bool type2MetNames, bool type2Literals, bool type2Types, bool type3)
-	map[list[str], set[lrel[loc,int]]] result 
-		= run(|project://Software-Evolution/test/benchmarkFiles/debugtokenizer/original|, settings[0], settings[1], settings[2], settings[3], settings[4]);
+	result 
+		= run(|project://Software-Evolution/test/benchmarkFiles/duplication|, settings[0], settings[1], settings[2], settings[3], settings[4], 6, 0);
 	
 	showResult(project, persistData(result));
 }
