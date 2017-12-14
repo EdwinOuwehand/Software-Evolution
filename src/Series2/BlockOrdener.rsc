@@ -23,27 +23,9 @@ alias Blocks = map[BlockOfCode, set[LineLocations]];
 
 public Blocks cloneClasses = ();
 
-public void testy() {
-	println("Starting run at <now()>");
-	//lines = getAllFilteredLines(|project://fragment_smallsql|);
-	//|project://smallsql0.21_src|
-	//lrel[str,loc,int] lines = getAllFilteredLines(|project://Software-Evolution/src/Series2/TinyTestfile|,true,true,true,true, false);//(|project://fragment_smallsql|, true, true, true, true, false);//(|project://smallsql0.21_src|);
-	
-	lines = getAllFilteredLines(|project://smallsql0.21_src|, false,false,false,false,false);
-	lines = moveBrackets(lines);
-	
-	//list[Blocks] blokjes = getAllBlocks(lines, 6);
-	//cloneClasses = extractClones(blokjs);
-	//iprintln(take(10,cloneClasses));
-	
-	clones = (findClones(lines));
-	
-	println(size(clones));
-		println("Done at <now()>");
-	
-}
 
 public Blocks findClones(lrel[str, loc, int] lines) {	
+	cloneClasses = ();
 
 	println("Start finding clones at <now()>");
 
@@ -56,25 +38,7 @@ public Blocks findClones(lrel[str, loc, int] lines) {
 	
 	println("Ordered blocks at <now()>");
 	
-	
 	Blocks cloneClasses = extractClones(orderedBlocks);
-	
-	
-	
-	// TODO: 
-	// 		- Start on the bottom of orderedBlocks i.e. the largest blocks
-	//		- Note: These are guaranteed duplicates, unique blocks have already been filtered out :)
-	//		- This entry will only contain one or multiple non-overlapping blocks. 
-	//				- Add these blocks to the cloneClasses map
-	//				- Make a list of the keys of the entries that must be deleted in the next block (1 step smaller) e.g. for "abcdefg" you will want to delete "abcdef" and "bcdefg" in the next step
-	//				- Return this list of overlap-keys
-	//		- Repeat for each entry:
-	//				- Delete given overlap-keys
-	// 				- Remaining blocks should be non-overlapping blocks 
-	//				- Add remaining blocks to cloneClasses
-	//				- Cut up deleted overlap-keys and remaining block keys for next run 
-	
-	
 	return cloneClasses;
 }
 
