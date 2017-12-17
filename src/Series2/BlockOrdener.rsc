@@ -71,7 +71,6 @@ public Blocks findClones(lrel[str, loc, int] lines, int minThreshold, int nDiff)
 	list[Blocks] orderedBlocks 	= getAllBlocks(lines, minThreshold);	
 	
 	Blocks cloneClasses = extractClones(orderedBlocks);
-	text(cloneClasses);
 	return cloneClasses;
 }
 
