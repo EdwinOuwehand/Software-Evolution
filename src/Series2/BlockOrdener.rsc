@@ -22,39 +22,68 @@ alias LineLocations 	= lrel[File, LineNumber];
 alias Blocks = map[BlockOfCode, set[LineLocations]];
 
 public Blocks cloneClasses = ();
+public int diffSize = 0;
 
 
-public Blocks findClones(lrel[str, loc, int] lines) {	
+public void testy() {
+       println("Starting run at <now()>");
+       //lines = getAllFilteredLines(|project://fragment_smallsql|);
+       //|project://smallsql0.21_src|
+       //|project://Software-Evolution/test/benchmarkFiles/duplication|
+       //lrel[str,loc,int] lines = getAllFilteredLines(|project://Software-Evolution/src/Series2/TinyTestfile|,true,true,true,true, false);//(|project://fragment_smallsql|, true, true, true, true, false);//(|project://smallsql0.21_src|);
+       
+       lines = getAllFilteredLines(|project://Software-Evolution/test/benchmarkFiles/duplication|, false,false,false,false,false);
+       lines = moveBrackets(lines);
+       
+       //list[Blocks] blokjes = getAllBlocks(lines, 6);
+       //cloneClasses = extractClones(blokjs);
+       //iprintln(take(10,cloneClasses));
+       //
+       clones = (findClones(lines, 6, 1));
+       //
+       //println(size(clones));
+               println("Done at <now()>");
+       
+}
+ 
+
+
+public Blocks findClones(lrel[str, loc, int] lines, int minThreshold, int nDiff) {	
 	cloneClasses = ();
-
-	println("Start finding clones at <now()>");
+	
+	if (nDiff < 0) {
+		println("A NEGATIVE NUMBER OF DIFFERENCES? U MAD?");
+		return ();
+	}
+	
+	diffSize = nDiff;
+	//minThreshold = 6;
 
 	int volume 		= size(lines);
+
 	int cloneLines 	= 0;
-	int threshold 	= 6; // Minimum clone size
-		
-	// Collection of all the blocks of increasing threshold sizes. One list entry for each threshold size.
-	list[Blocks] orderedBlocks 	= getAllBlocks(lines, threshold);	
 	
-	println("Ordered blocks at <now()>");
+
+
+	
+	// Collection of all the blocks of increasing threshold sizes. One list entry for each threshold size.
+	list[Blocks] orderedBlocks 	= getAllBlocks(lines, minThreshold);	
 	
 	Blocks cloneClasses = extractClones(orderedBlocks);
+	
 	return cloneClasses;
 }
 
 public Blocks extractClones (list[Blocks] blocks) {
 	// Reverse blocks so that the largest blocks are on front
-	println("Reverse blocks at <now()>");
 	blocks = reverse(blocks);
-	println("Done reversing at <now()>");
+
 	// The first block contains the largest clone classes, and does not contain overlapping blocks so can be added right away.
 	cloneClasses = cloneClasses + (head(blocks));
 	
 	// Cut the keys up into the expected overlap keys for next blocks
-	println("Cutting first keys at <now()>");
 	set[BlockOfCode] overlapKeys = splitKeys(domain(head(blocks)));
 
-	println("Extracting all other clones at <now()>");
 	// Call recursive method for remaining blocks, pass the keys to ignore
 	extractClones(tail(blocks), overlapKeys);
 	
@@ -66,22 +95,18 @@ public Blocks extractClones (list[Blocks] blocks) {
 // keys: keys to remove/ignore - these are overlapping blocks and already contained in cloneClasses
 public void extractClones (list[Blocks] blocksList, set[BlockOfCode] overlapKeys) {
 	if(isEmpty(blocksList)) {
-		println("Blocks empty at <now()>");
 		return;	
 	} 
 
 	Blocks currentBlocks = head(blocksList);
 	
 	// Filter out overlapping blocks
-	println("Filter out given keys at <now()>");
 	currentBlocks = domainX(currentBlocks, overlapKeys);
 	
 	// Add remaining blocks - these should be non-overlapping only
-	println("Adding cloneClasses at <now()>");
 	cloneClasses = cloneClasses + currentBlocks;
 	
 	// Split the keys of the remaining blocks, as well as the given overlapKeys
-	println("Splitting next keys to remove at <now()>");
 	set[BlockOfCode] nextKeys = {};
 	nextKeys = nextKeys + (splitKeys(domain(currentBlocks)));
 	nextKeys = nextKeys + (splitKeys(overlapKeys)); 
@@ -94,17 +119,14 @@ public void extractClones (list[Blocks] blocksList, set[BlockOfCode] overlapKeys
 public set[BlockOfCode] splitKeys (set[BlockOfCode] keys) {
 	set[BlockOfCode] split = {};
 	int n = size(keys);
-	//println("Lets split <n> keys at <now()>");
 
 	list[BlockOfCode] listKeys = toList(keys);
 
 	for (int i <- index(listKeys)) {
-	//println("<i>/<n>");
 		BlockOfCode key = listKeys[i];
 		split = split + {prefix(key)};
 		split = split + {tail(key)};
 	}
-	println("Done splitting keys at <now()>");
 	
 	return split;
 }
@@ -114,6 +136,7 @@ public set[BlockOfCode] splitKeys (set[BlockOfCode] keys) {
  *	Create blocks of increasing threshold size until the largest clone has been found
  */
 public list[Blocks] getAllBlocks (lrel[str, loc, int] lines, int threshold) {
+
 	bool largestBlockFound 		= false;
 	list[Blocks] orderedBlocks 	= [];
 	
@@ -129,7 +152,6 @@ public list[Blocks] getAllBlocks (lrel[str, loc, int] lines, int threshold) {
 			largestBlockFound = true;
 		}		
 	} while (!largestBlockFound);
-	println("Largest block found at <now()> :D");
 	
 	return orderedBlocks;
 }
@@ -143,23 +165,38 @@ public list[Blocks] getAllBlocks (lrel[str, loc, int] lines, int threshold) {
 public Blocks getOrderedBlocks(list[tuple[str, loc, int]] lines, int threshold) {
 	Blocks ordBlocks = ();
 	int index = 0;
-	
 	while (size(lines) >= threshold) {
 		// Take a block, split lines from locs
 		BlockOfCode blockLines 			= [bLines | <bLines, locations, lineNumbers> <- take(threshold, lines)];
 		LineLocations blockLocations 	= [<locations, lineNumbers> | <lin, locations, lineNumbers> <- take(threshold, lines)];
-	
-		/** WANTED TO DO SOMETHING LIKE THIS, BUT THERE'S NO FANCY WAY TO DO THIS :( **/		
-		//tuple[list[str] lines, list[tuple[loc,int]] locs] block = 
-		//	 <[blockOfLines | <blockOfLines, locations, lineNumbers> <- take(threshold, lines)], [<locations, lineNumbers> | <blockOfLines, locations, lineNumbers> <- take(threshold, lines)]>;
-		
-		// If there is already an entry for this code block, add the indices to its set of values
-		if (ordBlocks[blockLines]?) {
-			ordBlocks[blockLines] = ordBlocks[blockLines] + {blockLocations};
+
+		// If not Type-3 clone detection, simply check for exact matches 
+		if (diffSize == 0) {
+			// If there is already an entry for this code block, add the indices to its set of values
+			if (ordBlocks[blockLines]?) {
+				ordBlocks[blockLines] = ordBlocks[blockLines] + {blockLocations};
+				
+			// If this is our first encounter of these lines, add new entry of lines and indices to the code blocks 			
+			} else {
+				ordBlocks[blockLines] = {blockLocations};
+			}
 			
-		// If this is our first encounter of these lines, add new entry of lines and indices to the code blocks 			
-		} else {
-			ordBlocks[blockLines] = {blockLocations};
+		} else {	
+			// Extract the keys to be able to iterate over them
+			list[list[str]] ordKeys = toList(domain(ordBlocks));
+			
+			// Compare current blockLines to all collected ordBlocks so far.
+			for (i <- [0..size(ordKeys)]) {
+				// Each time when the difference is small enough, the current block is 'categorized' here by adding its location.
+				if (size(blockLines - ordKeys[i]) <= diffSize) {
+					ordBlocks[ordKeys[i]] = ordBlocks[ordKeys[i]] + {blockLocations};
+				} 
+			}
+			
+			// If this exact block doesn't have its own entry yet, add it.
+			if (!ordBlocks[blockLines]?) {
+				ordBlocks[blockLines] = {blockLocations};
+			}
 		}
 		
 		lines 	= drop(1, lines);

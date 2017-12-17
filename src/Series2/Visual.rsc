@@ -18,14 +18,18 @@ import Series2::Main;
 
 public void handleClick(str project, list[bool] settings) 
 {
-	map[list[str], set[lrel[loc,int]]] result 
-		= run(|project://smallsql0.21_src|, settings[0], settings[1], settings[2], settings[3], settings[4]);
+	println(project);
+	map[list[str], set[lrel[loc,int]]] result = ();
+	
+	result 
+		= run(|project://Software-Evolution/test/benchmarkFiles/duplication|, settings[0], settings[1], settings[2], settings[3], settings[4], 6, 0);
 	
 	//result = (
 	//["abc","def"] : { [<|project://Software-Evolution/test/benchmarkFiles/filtered/Strings.java|, 5>],
 	//[<|project://Software-Evolution/test/benchmarkFiles/filtered/Strings.java|, 6>] }, 
 	//["abd","dgf"] : { [<|project://Software-Evolution/test/benchmarkFiles/filtered/Strings.java|, 7>],
 	//[<|project://Software-Evolution/test/benchmarkFiles/filtered/Strings.java|, 8>] });
+
 	
 	showResult(project, persistData(result));
 }
