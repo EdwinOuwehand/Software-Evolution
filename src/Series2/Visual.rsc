@@ -56,16 +56,14 @@ public Figure paramSelection()
 	str selProject = "smallsql";
 	list[bool] settings = [false, false, false, false, false];
 	
-  	return vcat([ 	combo(["Type-1", "Type-2", "Type-3"], 	void(str s){ println(s); }),
-  					checkbox("Variable identifiers", 		void(bool s){ settings[0] = s; }),
-  					checkbox("Method identifiers", 			void(bool s){ settings[1] = s; }),
-  					checkbox("Literals", 					void(bool s){ settings[2] = s; }),
-  					checkbox("Data types", 					void(bool s){ settings[3] = s; }),
-  					text("Gap Size"),
-  					combo(["6", "7", "8"], 					void(str g){ println(g); }),
-                	combo(["smallsql", "hsqldb"], 			void(str s){ selProject = s; }),
-                	button("Analyse Project", 				void(){ handleClick(selProject, settings); }, 
-                											hsize(200), resizable(false, false))
+  	return grid([ 	[checkbox("Variable identifiers", 		void(bool s){ settings[0] = s; })],
+  					[checkbox("Method identifiers", 		void(bool s){ settings[1] = s; })],
+  					[checkbox("Literals", 					void(bool s){ settings[2] = s; })],
+  					[checkbox("Data types", 				void(bool s){ settings[3] = s; })],
+  					[text("Gap Size: "), combo(["6", "7", "8"], 				void(str g){ println(g); })],
+                	[text("Project: "), combo(["smallsql", "hsqldb"], 			void(str s){ selProject = s; })],
+                	[button("Analyse Project", 				void(){ handleClick(selProject, settings); }, 
+                											hsize(200), resizable(false, false))]
               ], resizable(false, false), gap(20));
 }
 
