@@ -56,7 +56,7 @@ public lrel[str, loc, int] filterLines(lrel[str, loc, int] lines) {
 	// Filter multiline comments first, this order prevents the end of multiline comments to be deleted when: // */ 
 	lrel[str, loc, int] filteredLines = filterMultilineComments(lines);
 
-	return [<line, location, number> | <line, location, number> <- filteredLines, 
+	return [<line, location, number> | <str line, loc location, int number> <- filteredLines, 
 										!isEmpty(line),	 				// 		Blank lines	 
 										!isEntirelyBlockComment(line), 	//		/* Block comment style on one line*/
 										/^\/\// !:= line ]; 				// 		Lines starting with // are completely commented out
@@ -99,7 +99,7 @@ public lrel[str, loc, int] getAllLines(loc directory, list [str] files, lrel[str
 	loc file = directory + head(files);
 	list [str] fileLines = readFileLines(file);
 	
-	if (type2VarNames || type2MetNames || type2Literals || type2Types || type3) {
+	if (type2VarNames || type2MetNames || type2Literals || type2Types) {
 		fileLines = processCloneTypeSettings(file, fileLines);
 	} 
 	
@@ -292,7 +292,7 @@ public bool insideString (str line) {
 public lrel[str, loc, int] dropBlockComment(lrel[str, loc, int] lines) {
 	if(isEmpty(lines)) {
 		return [];
-	}//todo???
+	}
 
 	str line = lines[0][0];
 	

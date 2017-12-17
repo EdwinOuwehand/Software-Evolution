@@ -14,6 +14,9 @@ import List;
 import Type;
 
 import Series2::Main;
+//|project://fragment_smallsql|
+//|project://Software-Evolution/test/benchmarkFiles/duplication|
+//|project://smallsql0.21_src|
 
 
 public void handleClick(str project, list[bool] settings) 
@@ -22,7 +25,7 @@ public void handleClick(str project, list[bool] settings)
 	map[list[str], set[lrel[loc,int]]] result = ();
 	
 	result 
-		= run(|project://Software-Evolution/test/benchmarkFiles/duplication|, settings[0], settings[1], settings[2], settings[3], settings[4], 6, 0);
+		= run(|project://smallsql0.21_src|, settings[0], settings[1], settings[2], settings[3], settings[4], 6, 1);
 	
 	//result = (
 	//["abc","def"] : { [<|project://Software-Evolution/test/benchmarkFiles/filtered/Strings.java|, 5>],
@@ -30,7 +33,7 @@ public void handleClick(str project, list[bool] settings)
 	//["abd","dgf"] : { [<|project://Software-Evolution/test/benchmarkFiles/filtered/Strings.java|, 7>],
 	//[<|project://Software-Evolution/test/benchmarkFiles/filtered/Strings.java|, 8>] });
 
-	
+	text(result);
 	showResult(project, persistData(result));
 }
 
