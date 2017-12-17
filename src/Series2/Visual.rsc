@@ -30,9 +30,9 @@ public void handleClick(str project, list[bool] settings, list[str] gapThresh)
 	} else if (project == "hsqldb") {
 		dir = |project://hsqldb-2.3.1|;
 	}
-	//public Blocks run(loc rootDir, bool type2VarNames, bool type2MetNames, bool type2Literals, bool type2Types, bool type3, int threshold, int diffSize){
-	result 
-		= run(dir, settings[0], settings[1], settings[2], settings[3], (toInt(gapThresh[0]) != 0), toInt(gapThresh[1]), toInt(gapThresh[0]));
+	
+	result = run(dir, settings[0], settings[1], settings[2], settings[3],
+		(toInt(gapThresh[0]) != 0), toInt(gapThresh[1]), toInt(gapThresh[0]));
 	
 	showResult(project, persistData(result));
 }
@@ -64,7 +64,10 @@ public Figure paramSelection()
 	list[str] gapThresh = ["0", "6"];
 	list[bool] settings = [false, false, false, false];
 	
-  	return grid([ 	[checkbox("Variable identifiers", 		void(bool s){ settings[0] = s; })],
+  	return grid([ 	[text("Type-1: Gap size 0 and no other settings checked.", left())],
+				  	[text("Type-2: Gap size 0 and one ore more settings checked.left()", left())],
+				  	[text("Type-3: Gap size greater than 0.", left())],
+  					[checkbox("Variable identifiers", 		void(bool s){ settings[0] = s; })],
   					[checkbox("Method identifiers", 		void(bool s){ settings[1] = s; })],
   					[checkbox("Literals", 					void(bool s){ settings[2] = s; })],
   					[checkbox("Data types", 				void(bool s){ settings[3] = s; })],
