@@ -1,6 +1,6 @@
 module Series2::Main
 
-import Series2::BlockSorter;
+import Series2::CloneFinder;
 import Series2::LineProcessor;
 import Series2::Visual;
 

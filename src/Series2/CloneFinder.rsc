@@ -1,4 +1,4 @@
-module Series2::BlockSorter
+module Series2::CloneFinder
 
 import IO;
 import Map;
@@ -25,30 +25,6 @@ public Blocks cloneClasses = ();
 public int diffSize = 0;
 
 
-public void testy() {
-       println("Starting run at <now()>");
-       //println("|project://fragment_smallsql| with threshold 6 gapsize 1");
-       //lines = getAllFilteredLines(|project://fragment_smallsql|);
-       //|project://smallsql0.21_src|
-       //|project://Software-Evolution/test/benchmarkFiles/duplication|
-       //lrel[str,loc,int] lines = getAllFilteredLines(|project://Software-Evolution/src/Series2/TinyTestfile|,true,true,true,true, false);//(|project://fragment_smallsql|, true, true, true, true, false);//(|project://smallsql0.21_src|);
-       
-       lines = getAllFilteredLines(|project://fragment_smallsql|, false,false,false,false,false);
-       lines = moveBrackets(lines);
-       
-       //list[Blocks] blokjes = getAllBlocks(lines, 6);
-       //cloneClasses = extractClones(blokjs);
-       //iprintln(take(10,cloneClasses));
-       //
-       clones = (findClones(lines, 6, 1));
-       //
-       //println(size(clones));
-               println("Done at <now()>");
-       text(clones);
-}
- 
-
-
 public Blocks findClones(lrel[str, loc, int] lines, int minThreshold, int nDiff) {	
 	cloneClasses = ();
 	
@@ -58,7 +34,6 @@ public Blocks findClones(lrel[str, loc, int] lines, int minThreshold, int nDiff)
 	}
 	
 	diffSize = nDiff;
-	//minThreshold = 6;
 
 	int volume 		= size(lines);
 
@@ -253,50 +228,3 @@ public bool areSimilar (BlockOfCode a, BlockOfCode b) {
 	}
 	return true;
 }
-
-
-
-
-
-/******** DEPRECATED - NO T-3 SUPPORT *****************
-// Recursive method. 
-// blocks: list of blocks of decreasing threshold size. 
-// keys: keys to remove/ignore - these are overlapping blocks and already contained in cloneClasses
-public void extractClones (list[Blocks] blocksList, set[BlockOfCode] overlapKeys) {
-	if(isEmpty(blocksList)) {
-		return;	
-	} 
-
-	Blocks currentBlocks = head(blocksList);
-	
-	// Filter out overlapping blocks
-	currentBlocks = domainX(currentBlocks, overlapKeys);
-	
-	// Add remaining blocks - these should be non-overlapping only
-	cloneClasses = cloneClasses + currentBlocks;
-	
-	// Split the keys of the remaining blocks, as well as the given overlapKeys
-	set[BlockOfCode] nextKeys = {};
-	nextKeys = nextKeys + (splitKeys(domain(currentBlocks)));
-	nextKeys = nextKeys + (splitKeys(overlapKeys)); 
-	
-	// Recursion
-	extractClones(tail(blocksList), nextKeys);
-}
-
-// Splits given blocks of code (which serve as keys in our map "Blocks") in [all but the last element] and [all but the first element].
-public set[BlockOfCode] splitKeys (set[BlockOfCode] keys) {
-	set[BlockOfCode] split = {};
-	int n = size(keys);
-
-	list[BlockOfCode] listKeys = toList(keys);
-
-	for (int i <- index(listKeys)) {
-		BlockOfCode key = listKeys[i];
-		split = split + {prefix(key)};
-		split = split + {tail(key)};
-	}
-	
-	return split;
-}
-***********************************************/

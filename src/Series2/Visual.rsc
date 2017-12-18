@@ -21,6 +21,7 @@ import Series2::Main;
 //|project://fragment_smallsql|
 //|project://Software-Evolution/test/benchmarkFiles/duplication|
 //|project://smallsql0.21_src|
+//|project://hsqldb|
 
 public set[lrel[loc,int]] duplicationLines = {};
 public int volume = 0;
@@ -61,7 +62,7 @@ public void handleClick(str project, list[bool] settings, list[str] gapThresh)
 	} else if (project == "smallsql") {
 		dir = |project://smallsql0.21_src|;
 	} else if (project == "hsqldb") {
-		dir = |project://hsqldb-2.3.1|;
+		dir = |project://hsqldb|;
 	}
 	
 	result = run(dir, settings[0], settings[1], settings[2], settings[3],
