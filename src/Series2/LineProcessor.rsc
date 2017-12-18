@@ -253,10 +253,7 @@ public lrel[str, loc, int] filterMultilineComments(lrel[str, loc, int] lines) {
 			// When we can't continue, check: 
 			// Is this false alarm, is it just an occurrence of /* inside a string? If so, remove it and re-evaluate
 			if(insideString(lines[0][0])){
-				//filterString = replaceFirst(lines[0][0], "/*", "");
 				lines[0][0] = replaceFirst(lines[0][0], "/*", "");
-				//lines = drop(1, lines);
-				//lines = push(filterString, lines);
 			} 
 	
 			// Is this really start of a multiline block comment? If so, drop lines until the end of the comment is found

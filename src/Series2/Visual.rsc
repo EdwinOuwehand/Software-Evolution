@@ -8,21 +8,51 @@ import vis::KeySym;
 
 import util::Math;
 import util::Editors;
+import util::ValueUI;
 
+import DateTime;
 import Set;
 import List;
 import Type;
 import String;
+import Map;
 
 import Series2::Main;
 //|project://fragment_smallsql|
 //|project://Software-Evolution/test/benchmarkFiles/duplication|
 //|project://smallsql0.21_src|
 
+public set[lrel[loc,int]] duplicationLines = {};
+public int volume = 0;
+
+public void setVolume (int vol) {
+	volume = vol;
+}
+
+public list[str] biggestClone = [];
 
 public void handleClick(str project, list[bool] settings, list[str] gapThresh) 
 {
-	println(project);
+	datetime begin = now();
+	
+	println("Configuration:");
+	println("-----");
+	println("Project <project>");
+	if (gapThresh[0] != "0") {
+		println("Type-3 clone detection with gap size <gapThresh[0]>");
+	} else {
+		if (settings[0] || settings[1] || settings[2] || settings[3]) {
+			println("Type-2 with differences allowed in: ");
+			if(settings[0]){ println("- variable identifiers ");}
+			if(settings[1]){ println("- method identifiers ");}
+			if(settings[2]){ println("- literals ");}
+			if(settings[3]){ println("- data types ");}
+		} else {
+			println("Type-1 clone detection");
+		}
+	}
+	println("Clone threshold: <gapThresh[1]> lines");
+	
 	map[list[str], set[lrel[loc,int]]] result = ();
 	loc dir;
 	
@@ -37,8 +67,69 @@ public void handleClick(str project, list[bool] settings, list[str] gapThresh)
 	result = run(dir, settings[0], settings[1], settings[2], settings[3],
 		(toInt(gapThresh[0]) != 0), toInt(gapThresh[1]), toInt(gapThresh[0]));
 	
+	println("-----");
+	println("Number of clones: <countClones(result)>");
+	println("Number of clone classes: <size(result)>");
+	
+	lrel[loc,int]location = getOneFrom(result[biggestClone]);
+	println("Biggest clone found (<size(biggestClone)> lines long) is located in <head(location)[0]>:");
+	println(biggestClone);
+	println("-----");
+	
+	
+	int dupLines = getNumberDupLines(duplicationLines);
+	println("Total duplication: <dupLines> of <volume> lines of code (<percent(dupLines, volume)>%)");
+	Duration time = (now()-begin);
+	println("Time taken: <time.hours> hours, <time.minutes> minutes, <time.seconds> seconds, <time.milliseconds> milliseconds");
+		
 	text(result); 
 	showResult(project, persistData(result));
+
+	
+	
+}
+public int getNumberDupLines (set[lrel[loc,int]] dups) {
+	list[lrel[loc,int]] lineList = toList(dups);
+	set[tuple[loc,int]] lines = {};
+	for(int i <- index(lineList)) {
+		lines += toSet(lineList[i]);
+	}
+	return size(lines);
+}
+
+public int countClones (map[list[str], set[lrel[loc,int]]] cloneClasses) {
+	duplicationLines = {};
+	int n = 0;
+	list[str] biggestClone = [];
+	tuple[list[str], set[lrel[loc,int]]] biggestClass = <[],{}>;
+	set[lrel[loc,int]] dupLines = {};
+	
+	cloneClassesList = toList(cloneClasses);
+	for(int i <- index(cloneClassesList)) {
+		n += size(cloneClassesList[i][1]);
+		dupLines = dupLines + cloneClassesList[i][1];
+	
+		if (size(cloneClassesList[i][0]) > size(biggestClone)) {
+			biggestClone = cloneClassesList[i][0];
+		}
+		
+		if(size(cloneClassesList[i][1]) > size(biggestClass[1])) {
+			biggestClass = cloneClassesList[i];
+		}
+	}
+	setBiggestClone(biggestClone);
+	printBiggestClass(biggestClass);
+	duplicationLines = dupLines;
+	return n;
+}
+
+public void setBiggestClone(list[str] clone) {
+	biggestClone = clone;
+}
+
+public void printBiggestClass(tuple[list[str], set[lrel[loc,int]]] cloneClass) {
+	println("Biggest clone class:");
+	iprintln(cloneClass);
 }
 
 public void showResult(str title, list[tuple[loc, int, list[int]]] filesAndData) 
@@ -50,8 +141,9 @@ public void showResult(str title, list[tuple[loc, int, list[int]]] filesAndData)
 			edit(tmp);
 			return true; 
 		});
-		str message = file[0].file + "has a total of <size(file[2])> duplicated lines, "
-			+ "\nwhich is <percent(size(file[2]), file[1])>% of the file.";
+		int duplicatedLines = size(dup(file[2]));
+		str message = file[0].file + "has a total of <duplicatedLines> duplicated lines, "
+			+ "\nwhich is <percent(duplicatedLines, file[1])>% of the file.";
 		
 		FProperty popup = mouseOver(box(text(message), fillColor("lightyellow"), grow(1.2),resizable(false)));
 		warns = [ warning(line, "Duplicated Line") | line <- file[2] ];
@@ -68,19 +160,33 @@ public Figure paramSelection()
 	list[str] gapThresh = ["0", "6"];
 	list[bool] settings = [false, false, false, false];
 	
-  	return grid([ 	[text("Type-1: Gap size 0 and no other settings checked.", left())],
-				  	[text("Type-2: Gap size 0 and one ore more settings checked.left()", left())],
-				  	[text("Type-3: Gap size greater than 0.", left())],
-  					[checkbox("Variable identifiers", 		void(bool s){ settings[0] = s; })],
-  					[checkbox("Method identifiers", 		void(bool s){ settings[1] = s; })],
-  					[checkbox("Literals", 					void(bool s){ settings[2] = s; })],
-  					[checkbox("Data types", 				void(bool s){ settings[3] = s; })],
-  					[text("Gap Size: "), combo(["0", "1", "2", "3", "4", "5"], 				void(str g){ gapThresh[0] = g; })],
-                	[text("Threshold: "), combo(["3", "4", "5", "6", "7", "8", "9", "10"], 	void(str t){ gapThresh[1] = t; })],
-                	[text("Project: "), combo(["smallsql", "hsqldb", "test"], 				void(str s){ selProject = s; })],
-                	[button("Analyse Project", 				void(){ handleClick(selProject, settings, gapThresh); }, 
-                											hsize(200), resizable(false, false))]
-              ], resizable(false, false), gap(20));
+  	return grid([ 	
+  		[text("Clone detection settings", fontSize(16), left())],							
+       	[text("Clone size threshold: ", left())],
+        	[combo(["6", "3", "4", "5", "6", "7", "8", "9", "10"], 	void(str t){ gapThresh[1] = t; }, left())],
+        	[text("Project: ", fontSize(14), left())], 
+        	[combo(["smallsql", "hsqldb", "test"], 				void(str s){ selProject = s; }, left())],
+			    [text("")],            										
+  		[text("Type-1: Exact copy", fontSize(16), left())],
+  		[text("Ignoring whitespace and comments, formatted brackets (included by default)", left())],
+				[text("")],            										
+	  	[text("Type-2: Syntactical copy", fontSize(16), left())],
+	  	[text("Type-1 + options to allow certain differences", left())],
+	 	[text("Ignore:", fontSize(14), left())], 	
+		[checkbox("Variable identifiers", 		void(bool s){ settings[0] = s; }, left())],
+		[checkbox("Method identifiers",			void(bool s){ settings[1] = s; }, left())],
+		[checkbox("Literals", 					void(bool s){ settings[2] = s; }, left())],
+		[checkbox("Data types", 					void(bool s){ settings[3] = s; }, left())],
+			    [text("")],            										
+  	  	[text("Type-3: Copy with differences", fontSize(16), left())],	
+	  	[text("Type-1 + optional Type-2 settings. Allow changed, removed or added lines", left())],				
+		[text("Number of different lines: ", fontSize(14), left())], 
+		[combo(["0", "1", "2", "3", "4", "5"], 				void(str g){ gapThresh[0] = g; }, left())],
+        	[button("Analyse project", 				void(){ handleClick(selProject, settings, gapThresh); }, 
+			hsize(200), resizable(false, false))]
+  	], resizable(false, false), gap(5), left());
+
+
 }
 
 public list[tuple[loc, int, list[int]]] persistData (map[list[str], set[lrel[loc,int]]] scanResult)

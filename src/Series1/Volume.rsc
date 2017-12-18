@@ -1,7 +1,7 @@
 /**
  *  Module responsible for retrieving and filtering lines of Java code
  */
- module Volume
+ module Series1::Volume
 
 import IO;
 import List;

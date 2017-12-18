@@ -1,7 +1,7 @@
-module Test
+module Series1::Test
 
-import Volume;
-import UnitAnalysis;
+import Series1::Volume;
+import Series1::UnitAnalysis;
 
 import lang::java::m3::Core;
 import lang::java::jdt::m3::Core;

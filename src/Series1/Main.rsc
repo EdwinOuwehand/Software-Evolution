@@ -1,13 +1,13 @@
-module Main
+module Series1::Main
 
 import IO;
 import List;
 import DateTime;
 import util::Math;
 
-import Volume;
-import Duplication;
-import UnitAnalysis;
+import Series1::Volume;
+import Series1::Duplication;
+import Series1::UnitAnalysis;
 
 list[str] intToRating 			= 	["++", "+", "o", "-", "--"];
 list[int] duplicationBounds 		= 	[3, 5, 10, 20];

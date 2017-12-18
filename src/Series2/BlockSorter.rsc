@@ -1,4 +1,4 @@
-module Series2::BlockOrdener
+module Series2::BlockSorter
 
 import IO;
 import Map;

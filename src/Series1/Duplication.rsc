@@ -1,4 +1,4 @@
-module Duplication
+module Series1::Duplication
 
 import IO;
 import Map;

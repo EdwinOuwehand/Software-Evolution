@@ -1,4 +1,4 @@
-module UnitAnalysis
+module Series1::UnitAnalysis
 
 import IO;
 import lang::java::m3::Core;
@@ -14,7 +14,7 @@ import Exception;
 import List;
 import Type;
 
-import Volume;
+import Series1::Volume;
 
 private list[tuple[int, int]] analysedList;
 private list[list[int]] scale = [[50, 20, 10, 0], [60, 40, 20, 0]]; // cc, size
