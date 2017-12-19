@@ -61,7 +61,7 @@ public void handleClick(str project, list[bool] settings, list[str] gapThresh)
 	}
 	
 	result = run(dir, settings[0], settings[1], settings[2], settings[3],
-		(toInt(gapThresh[0]) != 0), toInt(gapThresh[1]), toInt(gapThresh[0]));
+				 toInt(gapThresh[1]), toInt(gapThresh[0]));
 	
 	println("-----");
 	println("Number of clones: <countClones(result)>");

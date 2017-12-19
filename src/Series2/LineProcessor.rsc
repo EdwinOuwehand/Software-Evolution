@@ -1,7 +1,7 @@
 /**
  *  Module responsible for retrieving and filtering lines of Java code
  */
- module Series2::LineProcessor
+module Series2::LineProcessor
 
 import IO;
 import List;
@@ -22,7 +22,6 @@ private bool type2VarNames 	= false;
 private bool type2MetNames	= false;
 private bool type2Literals	= false;
 private bool type2Types		= false;
-private bool type3 			= false;
 
 list[Expression] vars 	= [];	
 set[str] varNames	 	= {};
@@ -47,12 +46,11 @@ set[str] literals 		= {};
  }
 
  //Retrieve all filtered lines of code which is the sources for all metrics
- public lrel[str, loc, int] getAllFilteredLines(loc rootDir, bool t2v, bool t2m, bool t2l, bool t2t, bool t3) {
+ public lrel[str, loc, int] getAllFilteredLines(loc rootDir, bool t2v, bool t2m, bool t2l, bool t2t) {
  	type2VarNames 	= t2v;
  	type2MetNames 	= t2m;
  	type2Literals 	= t2l;
  	type2Types		= t2t;
- 	type3 			= t3;
  	
  	if (type2VarNames || type2MetNames || type2Literals || type2Types) {
  		getAllAstFromRootDir(rootDir);
@@ -62,12 +60,12 @@ set[str] literals 		= {};
 }
 
 public void getAllAstFromRootDir(loc rootDir) {
-vars 		= [];	
-varNames	= {};
-metNames 	= {};
-literals 	= {};
+	vars 		= [];	
+	varNames		= {};
+	metNames 	= {};
+	literals 	= {};
 
-ast = getAllAstFromDir(rootDir);
+	ast = getAllAstFromDir(rootDir);
 
 	visit(ast) {
 		case field(a, list[Expression] b): 	vars += b;

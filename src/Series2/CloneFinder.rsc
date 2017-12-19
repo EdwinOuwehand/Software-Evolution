@@ -1,3 +1,6 @@
+/**
+ *  Module responsible for ordering code into blocks and extracting clones from them
+ */
 module Series2::CloneFinder
 
 import IO;
@@ -26,21 +29,10 @@ public int diffSize = 0;
 
 
 public Blocks findClones(lrel[str, loc, int] lines, int minThreshold, int nDiff) {	
-	cloneClasses = ();
-	
-	if (nDiff < 0) {
-		println("A NEGATIVE NUMBER OF DIFFERENCES? U MAD?"); // TODO
-		return ();
-	}
-	
-	diffSize = nDiff;
-
+	cloneClasses 	= ();
+	diffSize 		= nDiff;
 	int volume 		= size(lines);
-
 	int cloneLines 	= 0;
-	
-
-
 	
 	// Collection of all the blocks of increasing threshold sizes. One list entry for each threshold size.
 	list[Blocks] orderedBlocks 	= getAllBlocks(lines, minThreshold);	
@@ -65,9 +57,11 @@ public Blocks extractClones (list[Blocks] blocks) {
 	return cloneClasses;
 }
 
-// Recursive method. 
-// blocks: The list of blocks with decreasing threshold sizes. 
-// overlaps: blocks to remove/ignore - these are overlapping blocks and already contained in cloneClasses.
+/**
+ *	Recursive method. 
+ *	blocks: The list of blocks with decreasing threshold sizes. 
+ *	overlaps: blocks to remove/ignore - these are overlapping blocks and already contained in cloneClasses.
+ */
 public void extractClones (list[Blocks] blocksList, Blocks overlaps) {
 	if(isEmpty(blocksList)) {
 		return;	
@@ -120,21 +114,16 @@ public Blocks splitBlocks (Blocks blocks) {
 	     set[LineLocations] val1 = {};
 		 set[LineLocations] val2 = {};
 		 
-		 
 		 // For each block of locations, add front and back to list 
 		 for (int j <- [0..size(listLocs)]) {		 
 		 	val1 = val1 + {prefix(listLocs[j])};
 		 	val2 = val2 + {tail(listLocs[j])};
 		 }
-	
 		split[key1] = val1;
 		split[key2] = val2;
 	}
-	
 	return split;
 }
-
-
 
 /**
  *	Create blocks of increasing threshold size until the largest clone has been found
@@ -193,7 +182,6 @@ public Blocks getOrderedBlocks(list[tuple[str, loc, int]] lines, int threshold) 
 			for (i <- [0..size(ordKeys)]) {
 				// Each time when the difference is small enough, the current block is 'categorized' here by adding its location.
 				if (areSimilar(blockLines, ordKeys[i])) { 
-				//println("<blockLines> - <ordKeys[i]> = <blockLines-ordKeys[i]>");
 					ordBlocks[ordKeys[i]] = ordBlocks[ordKeys[i]] + {blockLocations};
 				} 
 			}
@@ -203,7 +191,6 @@ public Blocks getOrderedBlocks(list[tuple[str, loc, int]] lines, int threshold) 
 				ordBlocks[blockLines] = {blockLocations};
 			}
 		}
-		
 		lines 	= drop(1, lines);
 		index 	+= 1;
 	}

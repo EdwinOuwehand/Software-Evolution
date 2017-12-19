@@ -18,7 +18,7 @@ alias LineNumber 	= int;
 alias LineLocations = lrel[File, LineNumber];
 
 public test bool allDup(){
-	lines = getAllFilteredLines(|project://Software-Evolution/test/benchmarkFiles/allDups|, false, false, false, false, false);
+	lines = getAllFilteredLines(|project://Software-Evolution/test/benchmarkFiles/allDups|, false, false, false, false);
 	lines = moveBrackets(lines);	
 	n_lines = size(lines);
 	clones = (findClones(lines, 6, 0));
@@ -35,25 +35,24 @@ public test bool allDup(){
 }
 
 public test bool allUnique() {
-	lines = getAllFilteredLines(|project://Software-Evolution/test/benchmarkFiles/allDups|, false, false, false, false, false);
-	lines = dup(lines);
+	lines = getAllFilteredLines(|project://Software-Evolution/test/benchmarkFiles/allUnique|, false, false, false, false);
 	lines = moveBrackets(lines);	
 	clones = (findClones(lines, 6, 0));	
 
-	return clones == [];
+	return isEmpty(clones);
 }
 
 public test bool type2() {
-	clones1 = run(|project://Software-Evolution/test/benchmarkFiles/type2|, false, false, false, false, false, 6, 0);
-	clones2 = run(|project://Software-Evolution/test/benchmarkFiles/type2|, true, true, true, true, true, 6, 0);
+	clones1 = run(|project://Software-Evolution/test/benchmarkFiles/type2|, false, false, false, false, 6, 0);
+	clones2 = run(|project://Software-Evolution/test/benchmarkFiles/type2|, true, true, true, true, 6, 0);
 	
 	return size(clones1) < size(clones2);
 }
 
 public test bool type3() {
-	clones1 = run(|project://Software-Evolution/test/benchmarkFiles/type2|, false, false, false, false, false, 6, 0);
-	clones2 = run(|project://Software-Evolution/test/benchmarkFiles/type2|, false, false, false, false, false, 6, 1);
-	clones3 = run(|project://Software-Evolution/test/benchmarkFiles/type2|, false, false, false, false, false, 6, 2);
+	clones1 = run(|project://Software-Evolution/test/benchmarkFiles/type2|, false, false, false, false, 6, 0);
+	clones2 = run(|project://Software-Evolution/test/benchmarkFiles/type2|, false, false, false, false, 6, 1);
+	clones3 = run(|project://Software-Evolution/test/benchmarkFiles/type2|, false, false, false, false, 6, 2);
 	
 	return size(clones1) < size(clones2) && size(clones2) < size(clones3);
 }
