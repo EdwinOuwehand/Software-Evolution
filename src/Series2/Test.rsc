@@ -5,6 +5,7 @@ import IO;
 import Series2::CloneFinder;
 import Series2::LineProcessor;
 import Series2::Visual;
+import Series2::Main;
 
 import List;
 import Map;
@@ -41,14 +42,19 @@ public test bool allUnique() {
 
 	return clones == [];
 }
-//
-//public test bool type2() {
-//	type2VarNames 	= true;
-// 	type2MetNames 	= true;
-// 	type2Literals 	= true;
-// 	type2Types		= true;
-// 	
-//	println (getAllLines(|project://Software-Evolution/test/benchmarkFiles/type2|));
-//
-//}
+
+public test bool type2() {
+	clones1 = run(|project://Software-Evolution/test/benchmarkFiles/type2|, false, false, false, false, false, 6, 0);
+	clones2 = run(|project://Software-Evolution/test/benchmarkFiles/type2|, true, true, true, true, true, 6, 0);
+	
+	return size(clones1) < size(clones2);
+}
+
+public test bool type3() {
+	clones1 = run(|project://Software-Evolution/test/benchmarkFiles/type2|, false, false, false, false, false, 6, 0);
+	clones2 = run(|project://Software-Evolution/test/benchmarkFiles/type2|, false, false, false, false, false, 6, 1);
+	clones3 = run(|project://Software-Evolution/test/benchmarkFiles/type2|, false, false, false, false, false, 6, 2);
+	
+	return size(clones1) < size(clones2) && size(clones2) < size(clones3);
+}
 
