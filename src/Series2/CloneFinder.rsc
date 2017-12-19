@@ -29,7 +29,7 @@ public Blocks findClones(lrel[str, loc, int] lines, int minThreshold, int nDiff)
 	cloneClasses = ();
 	
 	if (nDiff < 0) {
-		println("A NEGATIVE NUMBER OF DIFFERENCES? U MAD?");
+		println("A NEGATIVE NUMBER OF DIFFERENCES? U MAD?"); // TODO
 		return ();
 	}
 	
