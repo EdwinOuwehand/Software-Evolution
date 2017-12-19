@@ -7,6 +7,8 @@ import Series2::LineProcessor;
 import Series2::Visual;
 
 import List;
+import Map;
+import Set;
 
 alias BlockOfCode = list[str];
 
@@ -15,22 +17,29 @@ alias LineNumber 	= int;
 alias LineLocations = lrel[File, LineNumber];
 
 public test bool allDup(){
-	lines = getAllFilteredLines(|project://Software-Evolution/test/benchmarkFiles|, false, false, false, false, false);
-	lines = lines + lines;
-	setVolume(size(lines));
+	lines = getAllFilteredLines(|project://Software-Evolution/test/benchmarkFiles/allDups|, false, false, false, false, false);
 	lines = moveBrackets(lines);	
+	n_lines = size(lines);
 	clones = (findClones(lines, 6, 0));
+	
+	set[lrel[loc,int]] dupLines = {};
+	
+	cloneClassesList = toList(clones);
+	for(int i <- index(cloneClassesList)) {
+		dupLines = dupLines + cloneClassesList[i][1];
+	}
+	n_dups = getNumberDupLines(dupLines);		
 
-	return clones != [];
+	return n_dups == n_lines;
 }
 
 public test bool allUnique() {
-	lines = getAllFilteredLines(|project://Software-Evolution/test/benchmarkFiles|, false, false, false, false, false);
+	lines = getAllFilteredLines(|project://Software-Evolution/test/benchmarkFiles/allDups|, false, false, false, false, false);
 	lines = dup(lines);
-	setVolume(size(lines));
 	lines = moveBrackets(lines);	
-	clones = (findClones(lines, 6, 0));
+	clones = (findClones(lines, 6, 0));	
 
-	println (clones); //?
 	return clones == [];
 }
+
+
