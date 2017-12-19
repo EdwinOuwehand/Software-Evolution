@@ -41,5 +41,14 @@ public test bool allUnique() {
 
 	return clones == [];
 }
-
+//
+//public test bool type2() {
+//	type2VarNames 	= true;
+// 	type2MetNames 	= true;
+// 	type2Literals 	= true;
+// 	type2Types		= true;
+// 	
+//	println (getAllLines(|project://Software-Evolution/test/benchmarkFiles/type2|));
+//
+//}
 

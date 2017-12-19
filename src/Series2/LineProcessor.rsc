@@ -7,6 +7,7 @@ import IO;
 import List;
 import String;
 import DateTime;
+import Set;
 
 import lang::java::m3::Core;
 import lang::java::jdt::m3::Core;
@@ -22,6 +23,11 @@ public bool type2MetNames	= false;
 public bool type2Literals	= false;
 public bool type2Types		= false;
 public bool type3 			= false;
+
+list[Expression] vars 	= [];	
+set[str] varNames	 	= {};
+set[str] metNames 		= {};
+set[str] literals 		= {};
 
 // Lines containing only a bracket should not be counted as a duplicate line; these brackets are moved to the previous line to retain code structure (see documentation)
  public lrel[str, loc, int] moveBrackets (lrel[str, loc, int] lines) {
@@ -45,7 +51,47 @@ public bool type3 			= false;
  	type2Types		= t2t;
  	type3 			= t3;
  	
+ 	if (type2VarNames || type2MetNames || type2Literals || type2Types) {
+ 		getAllAstFromRootDir(rootDir);
+ 	}
+ 	
 	return filterLines(getAllLines(rootDir));
+}
+
+public void getAllAstFromRootDir(loc rootDir) {
+vars 		= [];	
+varNames	 	= {};
+metNames 	= {};
+literals 	= {};
+
+ast = getAllAstFromDir(rootDir);
+
+	visit(ast) {
+		case field(a, list[Expression] b): 	vars += b;
+		case method(a, str b, c, d, e): 		metNames += b;
+		case number(a): 						literals += a;
+		case stringLiteral(a): 				literals += a;
+		case characterLiteral(a): 			literals += a;
+	}
+	
+	varNames += toSet([var.name | var <- vars]);
+}
+
+public list[Declaration] getAllAstFromDir (loc rootDir) {
+	list[Declaration] asts = [];
+	
+	list [str] directories 	= [x | x <- listEntries(rootDir), isDirectory(rootDir + x)];
+	
+	while(!isEmpty(directories)) {
+		asts = asts + getAllAstFromDir(rootDir + head(directories));
+		directories = drop(1, directories);
+	}
+	
+	list [str] files = [x | x <- listEntries(rootDir), /\.java$/ := x];
+	for (int i <- index(files)) {
+		asts = asts + createAstFromFile(rootDir+files[i], true);
+	}
+	return asts;
 }
 
 /**
@@ -110,40 +156,40 @@ public lrel[str, loc, int] getAllLines(loc directory, list [str] files, lrel[str
 }
 
 public list[str] processCloneTypeSettings(loc file, list[str] fileLines) {
-	Declaration ast = createAstFromFile(file, true);
-	
-	list[Expression] vars 	= [];	
-	list[str] varNames	 	= [];
-	list[str] metNames 		= [];
-	list[str] literals 		= [];
-		
-	visit(ast) {
-		case field(a, list[Expression] b): 	vars += b;
-		case method(a, str b, c, d, e): 		metNames += b;
-		case number(a): 						literals += a;
-		case stringLiteral(a): 				literals += a;
-		case characterLiteral(a): 			literals += a;
-	}
-	
-	varNames = [var.name | var <- vars];
+	//Declaration ast = createAstFromFile(file, true);
+	//
+	//list[Expression] vars 	= [];	
+	//list[str] varNames	 	= [];
+	//list[str] metNames 		= [];
+	//list[str] literals 		= [];
+	//	
+	//visit(ast) {
+	//	case field(a, list[Expression] b): 	vars += b;
+	//	case method(a, str b, c, d, e): 		metNames += b;
+	//	case number(a): 						literals += a;
+	//	case stringLiteral(a): 				literals += a;
+	//	case characterLiteral(a): 			literals += a;
+	//}
+	//
+	//varNames = [var.name | var <- vars];
 	
 	if(type2Types) {
-		fileLines = equalizeTypes(fileLines, varNames, metNames);
+		fileLines = equalizeTypes(fileLines);
 	}
 	
 	if(type2VarNames || type2MetNames) {
-		fileLines = equalizeNames(fileLines, varNames, metNames);
+		fileLines = equalizeNames(fileLines);
 	}
 	
 	if(type2Literals) {
-		fileLines = equalizeLiterals(fileLines, literals);
+		fileLines = equalizeLiterals(fileLines);
 	}
 	
 	return fileLines;
 }
 
-public list[str] equalizeTypes(list[str] fileLines, list[str] varNames, list[str] metNames) {
-	list[str] names = varNames + metNames;
+public list[str] equalizeTypes(list[str] fileLines) {
+	list[str] names = toList(varNames + metNames);
 	
 	for(int i <- index(fileLines)) {
 		// Split line into list of words, by space
@@ -162,15 +208,15 @@ public list[str] equalizeTypes(list[str] fileLines, list[str] varNames, list[str
 	return fileLines;
 }
 
-public list[str] equalizeNames(list[str] fileLines, list[str] varNames, list[str] metNames) {
+public list[str] equalizeNames(list[str] fileLines) {
 	list[str] names = [];
 	
 	if (type2VarNames) {
-		names += varNames;
+		names += toList(varNames);
 	}
 	
 	if (type2MetNames) {
-		names += metNames;
+		names += toList(metNames);
 	}
 	
 	for(int i <- index(fileLines)) {
@@ -188,7 +234,8 @@ public list[str] equalizeNames(list[str] fileLines, list[str] varNames, list[str
 	return fileLines;
 }
 
-public list[str] equalizeLiterals(list[str] fileLines, list[str] literals) {
+public list[str] equalizeLiterals(list[str] fileLines) {
+	
 	for(int i <- index(fileLines)) {	
 		// Split line into list of words, by space
 		list[str] splitLine = separate(fileLines[i]);

@@ -1,5 +1,3 @@
-package Series2.TinyTestfile;
-
 public class Banaan {
 
     int getal = 123;

@@ -50,7 +50,7 @@ abstract class ExpressionFunctionReturnString extends ExpressionFunction {
 		return Utils.string2boolean(getString().trim());
 	}
 
-
+	int a = 1;
 	final int getInt() throws Exception {
 		if(isNull()) return 0;
 		return Integer.parseInt(getString().trim());
@@ -86,6 +86,11 @@ abstract class ExpressionFunctionReturnString extends ExpressionFunction {
 		return new MutableNumeric(getString().trim());
 	}
 
+	final Object beep() throws Exception {
+		if(SSResultSetMetaData.isBinaryDataType(param1.getDataType()))
+			return getBytes();
+		return getString();
+	}
 
 	final Object getObject() throws Exception {
 		return getString();

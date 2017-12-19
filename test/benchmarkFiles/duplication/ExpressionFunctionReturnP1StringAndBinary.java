@@ -46,7 +46,7 @@ abstract class ExpressionFunctionReturnP1StringAndBinary extends ExpressionFunct
 		return Utils.string2boolean(getString().trim());
 	}
 
-
+	int b = 1;
 	final int getInt() throws Exception {
 		if(isNull()) return 0;
 		return Integer.parseInt(getString().trim());
@@ -88,4 +88,5 @@ abstract class ExpressionFunctionReturnP1StringAndBinary extends ExpressionFunct
 			return getBytes();
 		return getString();
 	}
+	
 }
