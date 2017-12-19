@@ -18,18 +18,21 @@ import util::FileSystem;
 import util::Math;
 import util::ValueUI;
 
-public bool type2VarNames 	= false; 
-public bool type2MetNames	= false;
-public bool type2Literals	= false;
-public bool type2Types		= false;
-public bool type3 			= false;
+private bool type2VarNames 	= false; 
+private bool type2MetNames	= false;
+private bool type2Literals	= false;
+private bool type2Types		= false;
+private bool type3 			= false;
 
 list[Expression] vars 	= [];	
 set[str] varNames	 	= {};
 set[str] metNames 		= {};
 set[str] literals 		= {};
 
-// Lines containing only a bracket should not be counted as a duplicate line; these brackets are moved to the previous line to retain code structure (see documentation)
+/**
+ * Lines containing only a bracket should not be counted as a duplicate line;
+ * these brackets are moved to the previous line to retain code structure (see documentation)
+ */
  public lrel[str, loc, int] moveBrackets (lrel[str, loc, int] lines) {
  	lrel[str, loc, int] result = [];
  	
@@ -60,7 +63,7 @@ set[str] literals 		= {};
 
 public void getAllAstFromRootDir(loc rootDir) {
 vars 		= [];	
-varNames	 	= {};
+varNames	= {};
 metNames 	= {};
 literals 	= {};
 
@@ -156,23 +159,6 @@ public lrel[str, loc, int] getAllLines(loc directory, list [str] files, lrel[str
 }
 
 public list[str] processCloneTypeSettings(loc file, list[str] fileLines) {
-	//Declaration ast = createAstFromFile(file, true);
-	//
-	//list[Expression] vars 	= [];	
-	//list[str] varNames	 	= [];
-	//list[str] metNames 		= [];
-	//list[str] literals 		= [];
-	//	
-	//visit(ast) {
-	//	case field(a, list[Expression] b): 	vars += b;
-	//	case method(a, str b, c, d, e): 		metNames += b;
-	//	case number(a): 						literals += a;
-	//	case stringLiteral(a): 				literals += a;
-	//	case characterLiteral(a): 			literals += a;
-	//}
-	//
-	//varNames = [var.name | var <- vars];
-	
 	if(type2Types) {
 		fileLines = equalizeTypes(fileLines);
 	}
@@ -264,20 +250,8 @@ public list[str] separate (str line) {
 }
 
 public str glue (list[str] lines) {
-
 		lines = [line | line <- lines, !isEmpty(line)];
 		line = intercalate(" ", lines);
-	
-	//	Not necessary, all lines get same treatment anyway, some extra spaces in between don't matter.
-	
-	//	line = replaceAll(line, ". ", ".");
-	//	line = replaceAll(line, " ,", ",");
-	//	line = replaceAll(line, " ;", ";");
-	//	line = replaceAll(line, " ( ", "(");
-	//	line = replaceAll(line, " )", ")");
-	//	line = replaceAll(line, " {", "{");
-	//	line = replaceAll(line, " } ", "}");
-	
 		return line;
 }
 
@@ -363,3 +337,4 @@ public lrel[str, loc, int] dropBlockComment(lrel[str, loc, int] lines) {
  public int linesOfCode(loc rootDir){
 	return size(filterLines(getAllLines(rootDir)));
  }
+ 

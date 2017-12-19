@@ -18,19 +18,14 @@ import String;
 import Map;
 
 import Series2::Main;
-//|project://fragment_smallsql|
-//|project://Software-Evolution/test/benchmarkFiles/duplication|
-//|project://smallsql0.21_src|
-//|project://hsqldb|
 
-public set[lrel[loc,int]] duplicationLines = {};
-public int volume = 0;
+private set[lrel[loc,int]] duplicationLines = {};
+private int volume = 0;
+private list[str] biggestClone = [];
 
 public void setVolume (int vol) {
 	volume = vol;
 }
-
-public list[str] biggestClone = [];
 
 public void handleClick(str project, list[bool] settings, list[str] gapThresh) 
 {
